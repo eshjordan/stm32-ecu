@@ -113,17 +113,14 @@
 							<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec.1436077694" name="MCU Output Converter Motorola S-rec with symbols" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec"/>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1948987748.1141224008" name="syscalls.c" rcbsApplicability="disable" resourcePath="Core/Src/syscalls.c" toolsToInvoke="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.835261085.151253555">
-						<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.835261085.151253555" name="MCU GCC Compiler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.835261085"/>
-					</fileInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Common"/>
+						<entry excluding="CMakeLists.txt" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ecu-dev/src/shared"/>
 						<entry excluding="Src/syscalls.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry excluding="drivers/|FreeRTOS/|FreeRTOS-Plus/|CMakeLists.txt|FreeRTOSConfig.h|FreeRTOSIPConfig.h|RTOS_IP.cpp|RTOS_IP.hpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ecu-dev/src/libs"/>
 						<entry excluding="portable/raspi/|portable/raspi+esp32/|CMakeLists.txt" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ecu-dev/src/sdk"/>
-						<entry excluding="CMakeLists.txt" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ecu-dev/src/shared"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

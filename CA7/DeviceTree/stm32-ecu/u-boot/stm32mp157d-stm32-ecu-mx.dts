@@ -350,6 +350,15 @@
 		};
 	};
 
+	m4_spi5_pins_mx: m4_spi5_mx-0 {
+		pins {
+			pinmux = <STM32_PINMUX('F', 6, RSVD)>, /* SPI5_NSS */
+					 <STM32_PINMUX('F', 7, RSVD)>, /* SPI5_SCK */
+					 <STM32_PINMUX('F', 8, RSVD)>, /* SPI5_MISO */
+					 <STM32_PINMUX('F', 9, RSVD)>; /* SPI5_MOSI */
+		};
+	};
+
 	sai2a_pins_mx: sai2a_mx-0 {
 		pins {
 			pinmux = <STM32_PINMUX('E', 0, AF10)>, /* SAI2_MCLK_A */
@@ -586,7 +595,7 @@
 };
 
 &dma2{
-	status = "okay";
+	status = "disabled";
 
 	/* USER CODE BEGIN dma2 */
 	sram = <&dma_pool>;
@@ -595,8 +604,8 @@
 
 &dmamux1{
 
-	dma-masters = <&dma1 &dma2>;
-	dma-channels = <16>;
+	dma-masters = <&dma1>;
+	dma-channels = <8>;
 
 	status = "okay";
 
@@ -976,6 +985,29 @@
 		};
 	};
 	/* USER CODE END ltdc */
+};
+
+&m4_dma2{
+	status = "okay";
+
+	/* USER CODE BEGIN m4_dma2 */
+	/* USER CODE END m4_dma2 */
+};
+
+&m4_rng2{
+	status = "okay";
+
+	/* USER CODE BEGIN m4_rng2 */
+	/* USER CODE END m4_rng2 */
+};
+
+&m4_spi5{
+	pinctrl-names = "default";
+	pinctrl-0 = <&m4_spi5_pins_mx>;
+	status = "okay";
+
+	/* USER CODE BEGIN m4_spi5 */
+	/* USER CODE END m4_spi5 */
 };
 
 &mdma1{
