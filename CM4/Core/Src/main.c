@@ -56,6 +56,8 @@ static void MX_GPIO_Init(void);
 static void MX_IPCC_Init(void);
 void StartDefaultTask(void const * argument);
 
+extern void initialise_monitor_handles();
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -78,6 +80,8 @@ void test_timer_fn(void *params)
   */
 int main(void)
 {
+  initialise_monitor_handles();
+
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
