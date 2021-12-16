@@ -1,4 +1,5 @@
 #include "System.hpp"
+#include "stm32mp15xx_disco.h"
 
 REGISTER_ROUTINE(point_mass_model, 10)
 {
@@ -22,6 +23,8 @@ REGISTER_ROUTINE(print_state, 1)
     auto pos = System::get_parameter<double>("position");
     auto vel = System::get_parameter<double>("velocity");
     auto acc = System::get_parameter<double>("acceleration");
+
+    BSP_LED_Toggle(LED_GREEN);
 
     printf("pos: %lf, vel: %lf, acc: %lf\n", pos, vel, acc);
     printf("Analogue Input 4: %lumV\n", System::IO::read_analogue_input(4));

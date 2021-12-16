@@ -8,7 +8,11 @@ extern osTimerId esp_out_update_tmrHandle;
 
 void system_init(int argc, char *argv[])
 {
-	initialise_monitor_handles();
+	if(IS_ENGINEERING_BOOT_MODE())
+	{
+	    initialise_monitor_handles();
+	}
+
 	HAL_RNG_MspInit(&hrng);
 	if(HAL_RNG_Init(&hrng) != HAL_OK)
 	{

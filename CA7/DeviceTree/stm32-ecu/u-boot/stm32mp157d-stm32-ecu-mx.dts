@@ -22,7 +22,7 @@
 /* USER CODE END includes */
 
 / {
-	model = "STMicroelectronics STM32MP157D-DK1 STM32CubeMX board - openstlinux-5.10-dunfell-mp1-21-03-31";
+	model = "STMicroelectronics STM32MP157D-DK1 STM32CubeMX board - openstlinux-5.10-dunfell-mp1-21-11-17";
 	compatible = "st,stm32mp157d-stm32-ecu-mx", "st,stm32mp157";
 
 	memory@c0000000 {
@@ -245,23 +245,6 @@
 		};
 	};
 
-	i2c1_pins_mx: i2c1_mx-0 {
-		pins {
-			pinmux = <STM32_PINMUX('D', 12, AF5)>, /* I2C1_SCL */
-					 <STM32_PINMUX('F', 15, AF5)>; /* I2C1_SDA */
-			bias-disable;
-			drive-open-drain;
-			slew-rate = <0>;
-		};
-	};
-
-	i2c1_sleep_pins_mx: i2c1_sleep_mx-0 {
-		pins {
-			pinmux = <STM32_PINMUX('D', 12, ANALOG)>, /* I2C1_SCL */
-					 <STM32_PINMUX('F', 15, ANALOG)>; /* I2C1_SDA */
-		};
-	};
-
 	i2s2_pins_mx: i2s2_mx-0 {
 		pins {
 			pinmux = <STM32_PINMUX('A', 9, AF5)>, /* I2S2_CK */
@@ -347,6 +330,13 @@
 					 <STM32_PINMUX('I', 4, ANALOG)>, /* LTDC_B4 */
 					 <STM32_PINMUX('I', 9, ANALOG)>, /* LTDC_VSYNC */
 					 <STM32_PINMUX('I', 10, ANALOG)>; /* LTDC_HSYNC */
+		};
+	};
+
+	m4_i2c1_pins_mx: m4_i2c1_mx-0 {
+		pins {
+			pinmux = <STM32_PINMUX('D', 12, RSVD)>, /* I2C1_SCL */
+					 <STM32_PINMUX('F', 15, RSVD)>; /* I2C1_SDA */
 		};
 	};
 
@@ -603,11 +593,10 @@
 };
 
 &dmamux1{
+	status = "okay";
 
 	dma-masters = <&dma1>;
 	dma-channels = <8>;
-
-	status = "okay";
 
 	/* USER CODE BEGIN dmamux1 */
 	/* USER CODE END dmamux1 */
@@ -666,86 +655,6 @@
 
 	/* USER CODE BEGIN hsem */
 	/* USER CODE END hsem */
-};
-
-&i2c1{
-	pinctrl-names = "default", "sleep";
-	pinctrl-0 = <&i2c1_pins_mx>;
-	pinctrl-1 = <&i2c1_sleep_pins_mx>;
-	status = "okay";
-
-	/* USER CODE BEGIN i2c1 */
-	i2c-scl-rising-time-ns = <100>;
-	i2c-scl-falling-time-ns = <7>;
-	/delete-property/ dmas;
-	/delete-property/ dma-names;
-
-	hdmi-transmitter@39{
-		compatible = "sil,sii9022";
-		reg = <0x39>;
-		iovcc-supply = <&v3v3_hdmi>;
-		cvcc12-supply = <&v1v2_hdmi>;
-		reset-gpios = <&gpioa 10 GPIO_ACTIVE_LOW>;
-		interrupts = <1 IRQ_TYPE_EDGE_FALLING>;
-		interrupt-parent = <&gpiog>;
-		#sound-dai-cells = <0>;
-		status = "okay";
-
-		ports{
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			port@0{
-				reg = <0>;
-
-				sii9022_in:endpoint{
-					remote-endpoint = <&ltdc_ep0_out>;
-				};
-			};
-
-			port@3{
-				reg = <3>;
-
-				sii9022_tx_endpoint:endpoint{
-					remote-endpoint = <&i2s2_endpoint>;
-				};
-			};
-		};
-	};
-
-	cs42l51:cs42l51@4a{
-		compatible = "cirrus,cs42l51";
-		reg = <0x4a>;
-		#sound-dai-cells = <0>;
-		VL-supply = <&v3v3>;
-		VD-supply = <&v1v8_audio>;
-		VA-supply = <&v1v8_audio>;
-		VAHP-supply = <&v1v8_audio>;
-		reset-gpios = <&gpiog 9 GPIO_ACTIVE_LOW>;
-		clocks = <&sai2a>;
-		clock-names = "MCLK";
-		status = "okay";
-
-		cs42l51_port:port{
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			cs42l51_tx_endpoint:endpoint@0{
-				reg = <0>;
-				remote-endpoint = <&sai2a_endpoint>;
-				frame-master;
-				bitclock-master;
-			};
-
-			cs42l51_rx_endpoint:endpoint@1{
-				reg = <1>;
-				remote-endpoint = <&sai2b_endpoint>;
-				frame-master;
-				bitclock-master;
-			};
-		};
-	};
-	/* USER CODE END i2c1 */
 };
 
 &i2c4{
@@ -962,6 +871,7 @@
 };
 
 &iwdg2{
+	u-boot,dm-pre-reloc;
 	status = "okay";
 
 	/* USER CODE BEGIN iwdg2 */
@@ -992,6 +902,15 @@
 
 	/* USER CODE BEGIN m4_dma2 */
 	/* USER CODE END m4_dma2 */
+};
+
+&m4_i2c1{
+	pinctrl-names = "default";
+	pinctrl-0 = <&m4_i2c1_pins_mx>;
+	status = "okay";
+
+	/* USER CODE BEGIN m4_i2c1 */
+	/* USER CODE END m4_i2c1 */
 };
 
 &m4_rng2{
