@@ -27,7 +27,7 @@
     <stringAttribute key="com.st.stm32cube.ide.mcu.debug.openocd.DBG_INTERFACE" value="Swd"/>
     <stringAttribute key="com.st.stm32cube.ide.mcu.debug.openocd.DBG_INTERFACE_FREQUENCY" value="8000000.0"/>
     <booleanAttribute key="com.st.stm32cube.ide.mcu.debug.openocd.DBG_LOW_POWER_MODE_ALLOWED" value="true"/>
-    <stringAttribute key="com.st.stm32cube.ide.mcu.debug.openocd.DBG_RESET_MODE" value="core"/>
+    <stringAttribute key="com.st.stm32cube.ide.mcu.debug.openocd.DBG_RESET_MODE" value="none"/>
     <booleanAttribute key="com.st.stm32cube.ide.mcu.debug.openocd.DBG_STOP_WATCHDOG_THEN_HALTED_ALLOWED" value="true"/>
     <booleanAttribute key="com.st.stm32cube.ide.mcu.debug.openocd.OPENOCD_GENERATOR_OPTION" value="true"/>
     <stringAttribute key="com.st.stm32cube.ide.mcu.debug.openocd.OPENOCD_NAME" value="&quot;${stm32cubeide_openocd_path}/openocd&quot;"/>
@@ -66,15 +66,15 @@
     <stringAttribute key="com.st.stm32cube.ide.mcu.debug.swv.trace_events" value="Cpi=0:Exc=0:Sleep=0:Lsu=0:Fold=0:Exetrc=0"/>
     <booleanAttribute key="com.st.stm32cube.ide.mcu.rtosproxy.enableRtosProxy" value="false"/>
     <stringAttribute key="com.st.stm32cube.ide.mcu.rtosproxy.rtosProxyCustomProperties" value=""/>
-    <stringAttribute key="com.st.stm32cube.ide.mcu.rtosproxy.rtosProxyDriver" value="threadx"/>
+    <stringAttribute key="com.st.stm32cube.ide.mcu.rtosproxy.rtosProxyDriver" value="freertos"/>
     <booleanAttribute key="com.st.stm32cube.ide.mcu.rtosproxy.rtosProxyDriverAuto" value="false"/>
-    <stringAttribute key="com.st.stm32cube.ide.mcu.rtosproxy.rtosProxyDriverPort" value="cortex_m0"/>
+    <stringAttribute key="com.st.stm32cube.ide.mcu.rtosproxy.rtosProxyDriverPort" value="ARM_CM0"/>
     <intAttribute key="com.st.stm32cube.ide.mcu.rtosproxy.rtosProxyPort" value="60000"/>
     <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.connectionSelected" value="MPU Serial"/>
     <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.doHalt" value="false"/>
     <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.doReset" value="false"/>
     <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.inetAddrLoader" value="192.168.10.129"/>
-    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.initCommands" value="monitor arm semihosting enable"/>
+    <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.initCommands" value="monitor reset &#10;monitor halt&#10;monitor arm semihosting enable"/>
     <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.ipAddress" value="localhost"/>
     <stringAttribute key="org.eclipse.cdt.debug.gdbjtag.core.jtagDeviceId" value="com.st.stm32cube.ide.mcu.debug.openocd"/>
     <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.loadImageThruSerialDevice" value="false"/>

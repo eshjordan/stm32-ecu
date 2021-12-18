@@ -1,16 +1,18 @@
 #include "stm32.h"
-#include "main.h"
+#include "cmsis_os.h"
+#include "stm32mp15xx_disco.h"
+
 #include "System.hpp"
 
 static RNG_HandleTypeDef hrng = {};
 extern osTimerId esp_in_update_tmrHandle;
 extern osTimerId esp_out_update_tmrHandle;
 
-void system_init(int argc, char *argv[])
+void system_run(void)
 {
 	if(IS_ENGINEERING_BOOT_MODE())
 	{
-	    initialise_monitor_handles();
+		initialise_monitor_handles();
 	}
 
 	HAL_RNG_MspInit(&hrng);
@@ -29,12 +31,10 @@ void system_init(int argc, char *argv[])
 	  Error_Handler();
 	}
 
-	System::init(argc, argv);
-}
+	BSP_LED_Init(LED_GREEN);
+	BSP_LED_On(LED_GREEN);
 
-void system_run(void)
-{
-	system_init(0, NULL);
+	System::init(0, nullptr);
 	System::run();
 }
 
