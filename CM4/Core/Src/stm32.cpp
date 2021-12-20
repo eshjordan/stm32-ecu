@@ -38,9 +38,22 @@ void system_run(void)
 	System::run();
 }
 
-uint32_t rand(void)
+int rand(void)
 {
 	uint32_t rnd = 0;
 	HAL_RNG_GenerateRandomNumber(&hrng, &rnd);
 	return rnd;
 }
+
+
+//int _write(int file, char *ptr, int len)
+//{
+//	int DataIdx;
+//
+//	for (DataIdx = 0; DataIdx < len; DataIdx++)
+//	{
+//	   ITM_SendChar( *ptr++ );
+//	}
+//
+//	return len;
+//}

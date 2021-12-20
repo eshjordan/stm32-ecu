@@ -2,6 +2,8 @@
 #define _STM32_H
 
 #include "main.h"
+#include "openamp_log.h"
+#include "stm32_openamp_wrapper.h"
 
 #define ALIGN __attribute__((aligned(4)))
 
@@ -13,7 +15,7 @@ extern void initialise_monitor_handles();
 
 void system_run(void);
 
-uint32_t rand(void);
+int rand(void);
 
 #ifdef __cplusplus
 }

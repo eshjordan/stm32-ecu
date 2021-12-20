@@ -20,10 +20,12 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
-#include "stm32.h"
+#include "openamp.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "stm32.h"
+#include "stm32mp15xx_disco.h"
 
 /* USER CODE END Includes */
 
@@ -72,6 +74,7 @@ static void MX_DMA_Init(void);
 static void MX_SPI5_Init(void);
 static void MX_RNG2_Init(void);
 static void MX_I2C1_Init(void);
+int MX_OPENAMP_Init(int RPMsgRole, rpmsg_ns_bind_cb ns_bind_cb);
 void StartDefaultTask(void const * argument);
 extern void esp_in_update(void const * argument);
 
@@ -97,7 +100,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-   HAL_Init();
+  HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -118,6 +121,8 @@ int main(void)
   {
     /* IPCC initialisation */
      MX_IPCC_Init();
+    /* OpenAmp initialisation ---------------------------------*/
+    MX_OPENAMP_Init(RPMSG_REMOTE, NULL);
   }
 
   /* USER CODE BEGIN SysInit */
@@ -171,11 +176,12 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  log_info("main_running");
+  system_run();
   /* USER CODE END RTOS_THREADS */
 
   /* Start scheduler */
-  system_run();
-//  osKernelStart();
+  osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
@@ -491,9 +497,11 @@ void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
+  BSP_LED_Init(LED_ORANGE);
   for(;;)
   {
-    osDelay(1);
+    osDelay(1000);
+    BSP_LED_Toggle(LED_ORANGE);
   }
   /* USER CODE END 5 */
 }

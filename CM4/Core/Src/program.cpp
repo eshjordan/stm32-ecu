@@ -1,5 +1,8 @@
 #include "System.hpp"
+
 #include "stm32mp15xx_disco.h"
+#include "stm32.h"
+
 
 REGISTER_ROUTINE(point_mass_model, 10)
 {
@@ -28,4 +31,5 @@ REGISTER_ROUTINE(print_state, 1)
 
     printf("pos: %lf, vel: %lf, acc: %lf\n", pos, vel, acc);
     printf("Analogue Input 4: %lumV\n", System::IO::read_analogue_input(4));
+    log_info("print_state_run");
 }
