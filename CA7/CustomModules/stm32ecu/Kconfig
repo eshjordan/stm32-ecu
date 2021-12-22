@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+config STM32ECU
+	tristate "Mediated device driver framework"
+#	depends on RPMSG
+	default m
+	help
+	  Provides a framework to virtualize devices.
+	  See Documentation/driver-api/vfio-mediated-device.rst for more details.

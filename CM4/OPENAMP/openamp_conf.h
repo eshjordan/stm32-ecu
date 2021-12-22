@@ -26,11 +26,6 @@
  extern "C" {
 #endif
 
-//#undef LINUX_RPROC_MASTER
-//#define VIRTIO_MASTER_ONLY
-//#define VIRTUAL_UART_MODULE_ENABLED
-
-
 /* Includes ------------------------------------------------------------------*/
 #if defined (__LOG_TRACE_IO_) || defined(__LOG_UART_IO_)
 #include "openamp_log.h"

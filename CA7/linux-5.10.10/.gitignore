@@ -1,1 +1,6 @@
 build
+Documentation
+arch
+drivers
+include
+*.rej
