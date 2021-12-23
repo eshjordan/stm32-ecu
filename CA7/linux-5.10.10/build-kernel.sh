@@ -75,6 +75,9 @@ if [ "${BUILD}" = "true" ]; then
     mkdir -p ${BUILD_DIR}/install_artifact/boot/
     cp ${BUILD_DIR}/arch/arm/boot/uImage ${BUILD_DIR}/install_artifact/boot/
     cp ${BUILD_DIR}/arch/arm/boot/dts/st*.dtb ${BUILD_DIR}/install_artifact/boot/
+
+    # Generate compile_commands.json
+    ${SCRIPT_DIR}/linux-5.10.10/scripts/clang-tools/gen_compile_commands.py
 fi
 
 if [ "${LOAD}" = "true" ]; then

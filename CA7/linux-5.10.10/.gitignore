@@ -4,3 +4,5 @@ arch
 drivers
 include
 *.rej
+.cache
+compile_commands.json

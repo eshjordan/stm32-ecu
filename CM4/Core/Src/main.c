@@ -25,6 +25,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "stm32.h"
+#include "rpmsg_manage.h"
 #include "stm32mp15xx_disco.h"
 
 /* USER CODE END Includes */
@@ -55,6 +56,9 @@ DMA_HandleTypeDef hdma_spi5_rx;
 DMA_HandleTypeDef hdma_spi5_tx;
 
 osThreadId defaultTaskHandle;
+osThreadId linuxCommsHandle;
+uint32_t linuxCommsBuffer[ 128 ];
+osStaticThreadDef_t linuxCommsControlBlock;
 osTimerId esp_in_update_tmrHandle;
 osStaticTimerDef_t esp_in_updateControlBlock;
 osTimerId esp_out_update_tmrHandle;
@@ -76,6 +80,7 @@ static void MX_RNG2_Init(void);
 static void MX_I2C1_Init(void);
 int MX_OPENAMP_Init(int RPMsgRole, rpmsg_ns_bind_cb ns_bind_cb);
 void StartDefaultTask(void const * argument);
+extern void run_rpmsg(void const * argument);
 extern void esp_in_update(void const * argument);
 
 /* USER CODE BEGIN PFP */
@@ -173,6 +178,10 @@ int main(void)
   /* definition and creation of defaultTask */
   osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+
+  /* definition and creation of linuxComms */
+  osThreadStaticDef(linuxComms, run_rpmsg, osPriorityNormal, 0, 128, linuxCommsBuffer, &linuxCommsControlBlock);
+  linuxCommsHandle = osThreadCreate(osThread(linuxComms), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
