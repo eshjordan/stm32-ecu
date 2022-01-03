@@ -192,8 +192,8 @@ end
 add-auto-load-safe-path /home/jordan/Documents/2021/stm32-ecu/CA7/linux-5.10.10/build
 source /home/jordan/Documents/2021/stm32-ecu/CA7/linux-5.10.10/build/vmlinux-gdb.py
 cd /home/jordan/Documents/2021/stm32-ecu/CA7/linux-5.10.10/build
-b kernel/module.c:3900
+b kernel/module.c:3901
 directory ../linux-5.10.10/drivers/stm32ecu/
-continue
-lx-symbols drivers/stm32ecu/stm32ecu.o
-# b stm32ecu.c:stm32ecu_init
+
+# continue
+# source /home/jordan/Documents/2021/stm32-ecu/CA7/gdbscripts/moduleDbg.gdb

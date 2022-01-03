@@ -17,10 +17,15 @@ while [[ $# -gt 0 ]]; do
     -f|--full)
       BUILD="true"
       LOAD="true"
+      REBUILD="true"
       shift # past argument
       ;;
     -b|--build)
       BUILD="true"
+      shift # past argument
+      ;;
+    -r|--rebuild)
+      REBUILD="true"
       shift # past argument
       ;;
     -l|--load)
@@ -36,8 +41,8 @@ done
 
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
-if [ "${BUILD}" != "true" ] && [ "${LOAD}" != "true" ]; then
-  echo "No action specified. Use -f, -b or -l"
+if [ "${BUILD}" != "true" ] && [ "${LOAD}" != "true" ] && [ "${REBUILD}" != "true" ]; then
+  echo "No action specified. Use -f, -b, -r or -l"
   exit 1
 fi
 
@@ -63,12 +68,19 @@ if [ "${BUILD}" = "true" ]; then
     for f in `ls -1 ${SCRIPT_DIR}/arch/arm/configs/fragment*.config`; do ${SOURCE_DIR}/scripts/kconfig/merge_config.sh -m -r -O ${BUILD_DIR} ${BUILD_DIR}/.config $f; done
     for f in `ls -1 ${KERNEL_SOURCE_DIR}/fragment*.config`; do ${SOURCE_DIR}/scripts/kconfig/merge_config.sh -m -r -O ${BUILD_DIR} ${BUILD_DIR}/.config $f; done
     yes '' | make ARCH=arm oldconfig O="${BUILD_DIR}" -j$(nproc)
+fi
+
+if [ "${REBUILD}" = "true" ]; then
+    cd ${SOURCE_DIR}
 
     # Build kernel images (uImage and vmlinux) and device tree (dtbs)
     make ARCH=arm uImage vmlinux dtbs LOADADDR=0xC2000040 O="${BUILD_DIR}" -j$(nproc)
 
     # Build kernel module
-    make ARCH=arm modules O="${BUILD_DIR}" -j$(nproc)
+    make ARCH=arm all O="${BUILD_DIR}" -j$(nproc)
+
+    # Generate userspace headers
+    make ARCH=arm INSTALL_HDR_PATH="${BUILD_DIR}/install_artifact" headers_install O="${BUILD_DIR}" -j$(nproc)
 
     # Generate output build artifacts
     make ARCH=arm INSTALL_MOD_PATH="${BUILD_DIR}/install_artifact" modules_install O="${BUILD_DIR}" -j$(nproc)
@@ -82,6 +94,8 @@ fi
 
 if [ "${LOAD}" = "true" ]; then
     echo "Updating kernel, device tree and modules"
+
+    cd ${SOURCE_DIR}
 
     # Update kernel and device tree
     cd ${BUILD_DIR}/install_artifact

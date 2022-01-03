@@ -3,7 +3,7 @@
 #include "openamp.h"
 #include "rpmsg_manage.h"
 
-#define RPMSG_SERVICE_NAME "rpmsg-client-sample"
+#define RPMSG_SERVICE_NAME "stm32mp1-rpmsg"
 #define reply_str "CM4 RECV OK!"
 
 static char received_data[64] = {0};

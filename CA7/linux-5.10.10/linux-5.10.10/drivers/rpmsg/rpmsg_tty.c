@@ -176,6 +176,8 @@ static int rpmsg_tty_probe(struct rpmsg_device *rpdev)
 	struct device *tty_dev;
 	int ret = 0;
 
+	dev_warn(&rpdev->dev, "ttyRPMSG PROBED!\n");
+
 	cport = devm_kzalloc(&rpdev->dev, sizeof(*cport), GFP_KERNEL);
 	if (!cport)
 		return -ENOMEM;
