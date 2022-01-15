@@ -2,6 +2,7 @@
 #include "cmsis_os.h"
 #include "openamp.h"
 #include "rpmsg_manage.h"
+#include "Interproc_Msg.h"
 
 #define RPMSG_SERVICE_NAME "stm32mp1-rpmsg"
 #define reply_str "CM4 RECV OK!"
@@ -9,13 +10,16 @@
 static char received_data[64] = {0};
 static uint8_t message_received = 0;
 static struct rpmsg_endpoint rp_endpoint = {0};
+static Interproc_Msg_t interproc_msg = {0};
 
 static int rpmsg_recv_callback(struct rpmsg_endpoint *ept, void *data, size_t len, uint32_t src, void *priv)
 {
-  strncpy(received_data, (char*)data, len <= 64 ? len : 64);
-  message_received=1;
+	if (len == sizeof(Interproc_Msg_t)) {
+		interproc_msg = *((Interproc_Msg_t*)data);
+		message_received=1;
+	}
 
-  return 0;
+    return 0;
 }
 
 void run_rpmsg(void const * argument)
@@ -31,14 +35,14 @@ void run_rpmsg(void const * argument)
 
 		while (1)
 		{
-			while (message_received == 0)
+			while (!message_received)
 			{
 				OPENAMP_check_for_message();
 				osDelay(1);
 			}
 			message_received = 0;
 			char rply[79] = {0};
-			sprintf(rply, reply_str " - %s", received_data);
+			sprintf(rply, reply_str " - %s", interproc_msg.name);
 			status = OPENAMP_send(&rp_endpoint, rply, strlen(rply));
 
 			if (status < 0)
