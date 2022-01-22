@@ -4,7 +4,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 KERNEL_VERSION=5.10.10
 SOURCE_DIR=${SCRIPT_DIR}/linux-${KERNEL_VERSION}
 BUILD_DIR=${SCRIPT_DIR}/build
-KERNEL_SOURCE_DIR=/home/jordan/Documents/2021/ecu-dev/src/stm32-resources/Developer-Package/stm32mp1-openstlinux-5.10-dunfell-mp1-21-03-31/sources/arm-ostl-linux-gnueabi/linux-stm32mp-5.10.10-r0
+KERNEL_SOURCE_DIR=/home/jordan/Documents/2021/stm32-resources/Developer-Package/stm32mp1-openstlinux-5.10-dunfell-mp1-21-03-31/sources/arm-ostl-linux-gnueabi/linux-stm32mp-5.10.10-r0
 BOARD_IP=192.168.10.129
 BOOTFS=/dev/mmcblk0p4
 
