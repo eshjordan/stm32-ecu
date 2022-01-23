@@ -11,44 +11,47 @@
 #include <linux/module.h>
 #include <linux/rpmsg.h>
 #include <linux/uaccess.h>
+#include <linux/device.h>
+#include <linux/kernel.h>
+#include <linux/init.h>
+#include <linux/kdev_t.h>
 #include <linux/stm32ecu/stm32ecu.h>
 
 #define MSG "hello world from stm32ecu!"
 
-#define WR_VALUE _IOW('a','a',int32_t*)
-#define RD_VALUE _IOR('a','b',int32_t*)
+static struct class *dev_class;
+static dev_t dev = 0;
+static struct device *my_device;
 
-int32_t value = 0;
+static int32_t value = 0;
 
-
-static int etx_open(struct inode *inode, struct file *file);
-static int etx_release(struct inode *inode, struct file *file);
-static ssize_t etx_read(struct file *filp, char __user *buf, size_t len,
-			loff_t *off);
-static ssize_t etx_write(struct file *filp, const char *buf, size_t len,
-			 loff_t *off);
-static long etx_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
+static int ioctl_open(struct inode *inode, struct file *file);
+static int ioctl_release(struct inode *inode, struct file *file);
+static ssize_t ioctl_read(struct file *filp, char __user *buf, size_t len,
+			  loff_t *off);
+static ssize_t ioctl_write(struct file *filp, const char *buf, size_t len,
+			   loff_t *off);
+static long ioctl_call(struct file *file, unsigned int cmd, unsigned long arg);
 
 static struct file_operations fops = {
 	.owner = THIS_MODULE,
-	.read = etx_read,
-	.write = etx_write,
-	.open = etx_open,
-	.unlocked_ioctl = etx_ioctl,
-	.release = etx_release,
+	.read = ioctl_read,
+	.write = ioctl_write,
+	.open = ioctl_open,
+	.unlocked_ioctl = ioctl_call,
+	.release = ioctl_release,
 };
 
-static int etx_open(struct inode *inode, struct file *file)
+static int ioctl_open(struct inode *inode, struct file *file)
 {
 	printk(KERN_WARNING "Device File Opened...!!!\n");
 	return 0;
 }
 
-
 /*
 ** This function will be called when we close the Device file
 */
-static int etx_release(struct inode *inode, struct file *file)
+static int ioctl_release(struct inode *inode, struct file *file)
 {
 	printk(KERN_WARNING "Device File Closed...!!!\n");
 	return 0;
@@ -56,8 +59,8 @@ static int etx_release(struct inode *inode, struct file *file)
 /*
 ** This function will be called when we read the Device file
 */
-static ssize_t etx_read(struct file *filp, char __user *buf, size_t len,
-			loff_t *off)
+static ssize_t ioctl_read(struct file *filp, char __user *buf, size_t len,
+			  loff_t *off)
 {
 	printk(KERN_WARNING "Read Function\n");
 	return 0;
@@ -65,8 +68,8 @@ static ssize_t etx_read(struct file *filp, char __user *buf, size_t len,
 /*
 ** This function will be called when we write the Device file
 */
-static ssize_t etx_write(struct file *filp, const char __user *buf, size_t len,
-			 loff_t *off)
+static ssize_t ioctl_write(struct file *filp, const char __user *buf,
+			   size_t len, loff_t *off)
 {
 	printk(KERN_WARNING, "Write function\n");
 	return len;
@@ -74,23 +77,32 @@ static ssize_t etx_write(struct file *filp, const char __user *buf, size_t len,
 /*
 ** This function will be called when we write IOCTL on the Device file
 */
-static long etx_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+static long ioctl_call(struct file *file, unsigned int cmd, unsigned long arg)
 {
 	switch (cmd) {
-	case WR_VALUE:
+	case STM32ECU_RESET: {
+		break;
+	}
+	case STM32ECU_OFFLINE: {
+		break;
+	}
+	case STM32ECU_SET_STATE: {
 		if (copy_from_user(&value, (int32_t *)arg, sizeof(value))) {
 			printk(KERN_ERR "Data Write : Err!\n");
 		}
 		printk(KERN_WARNING "Value = %d\n", value);
 		break;
-	case RD_VALUE:
+	}
+	case STM32ECU_GET_STATE: {
 		if (copy_to_user((int32_t *)arg, &value, sizeof(value))) {
 			printk(KERN_ERR "Data Read : Err!\n");
 		}
 		break;
-	default:
+	}
+	default: {
 		printk(KERN_WARNING "Default\n");
 		break;
+	}
 	}
 	return 0;
 }
@@ -177,22 +189,64 @@ static struct rpmsg_driver rpmsg_sample_client = {
 	.callback = rpmsg_sample_cb,
 	.remove = rpmsg_sample_remove,
 };
-module_rpmsg_driver(rpmsg_sample_client);
 
-// static int __init stm32ecu_init(void)
-// {
-// //	int
-// 	printk(KERN_ALERT "JORDAN IS INITIALISING STM32ECU");
-// 	return 0;
-// }
+static int __init stm32ecu_init(void)
+{
+	int status;
 
-// static void __exit stm32ecu_exit(void)
-// {
-// 	printk(KERN_ALERT "JORDAN IS EXITING STM32ECU");
-// }
+	printk(KERN_ALERT "JORDAN IS INITIALISING STM32ECU\n");
 
-// module_init(stm32ecu_init);
-// module_exit(stm32ecu_exit);
+	status = register_rpmsg_driver(&(rpmsg_sample_client));
+	if (status < 0) {
+		printk(KERN_ERR "FAILED INITIALISING STM32ECU\n");
+		return -1;
+	}
+
+	/*Allocating Major number*/
+	if ((alloc_chrdev_region(&dev, 0, 1, "stm32ecu_dev")) < 0) {
+		pr_err("Cannot allocate major number for device\n");
+		return -1;
+	}
+	pr_info("Major = %d Minor = %d \n", MAJOR(dev), MINOR(dev));
+
+	/*Creating struct class*/
+	if ((dev_class = class_create(THIS_MODULE, "stm32ecu_class")) == NULL) {
+		pr_err("Cannot create the struct class for device\n");
+		goto r_class;
+	}
+
+	/*Creating device*/
+	if ((my_device = device_create(dev_class, NULL, dev, NULL,
+				       "stm32ecu")) == NULL) {
+		pr_err("Cannot create the Device\n");
+		goto r_device;
+	}
+	pr_info("Kernel Module Inserted Successfully...\n");
+
+	return 0;
+
+r_device:
+	class_destroy(dev_class);
+r_class:
+	unregister_chrdev_region(dev, 1);
+	return -1;
+}
+
+static void __exit stm32ecu_exit(void)
+{
+	printk(KERN_ALERT "JORDAN IS EXITING STM32ECU\n");
+
+	device_destroy(dev_class, dev);
+	class_destroy(dev_class);
+	unregister_chrdev_region(dev, 1);
+
+	unregister_rpmsg_driver(&(rpmsg_sample_client));
+
+	pr_info("Kernel Module Removed Successfully...\n");
+}
+
+module_init(stm32ecu_init);
+module_exit(stm32ecu_exit);
 
 MODULE_AUTHOR("Jordan Esh <jordan.esh@monashmotorsport.com>");
 MODULE_DESCRIPTION("STM32 based ECU kernel driver for Monash Motorsport");

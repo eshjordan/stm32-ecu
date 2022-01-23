@@ -1,3 +1,6 @@
 [submodule "CM4/ecu-dev"]
 	path = CM4/ecu-dev
 	url = git@github.com:eshjordan/ecu-dev.git
+[submodule "grpc"]
+	path = CA7/stm32-ecu-manager/grpc
+	url = https://github.com/grpc/grpc.git

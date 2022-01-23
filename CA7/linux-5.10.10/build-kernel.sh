@@ -79,15 +79,6 @@ if [ "${REBUILD}" = "true" ]; then
     # Build kernel module
     make ARCH=arm all O="${BUILD_DIR}" -j$(nproc)
 
-    # Generate userspace headers
-    make ARCH=arm INSTALL_HDR_PATH="${BUILD_DIR}/install_artifact" headers_install O="${BUILD_DIR}" -j$(nproc)
-
-    # Generate output build artifacts
-    make ARCH=arm INSTALL_MOD_PATH="${BUILD_DIR}/install_artifact" modules_install O="${BUILD_DIR}" -j$(nproc)
-    mkdir -p ${BUILD_DIR}/install_artifact/boot/
-    cp ${BUILD_DIR}/arch/arm/boot/uImage ${BUILD_DIR}/install_artifact/boot/
-    cp ${BUILD_DIR}/arch/arm/boot/dts/st*.dtb ${BUILD_DIR}/install_artifact/boot/
-
     # Generate compile_commands.json
     ${SCRIPT_DIR}/linux-5.10.10/scripts/clang-tools/gen_compile_commands.py
 fi
@@ -97,16 +88,27 @@ if [ "${LOAD}" = "true" ]; then
 
     cd ${SOURCE_DIR}
 
+    # Generate userspace headers
+    make ARCH=arm INSTALL_HDR_PATH="${BUILD_DIR}/install_artifact" headers_install O="${BUILD_DIR}" -j$(nproc)
+
+    # Generate output build artifacts
+    make ARCH=arm INSTALL_MOD_PATH="${BUILD_DIR}/install_artifact" modules_install O="${BUILD_DIR}" -j$(nproc)
+    mkdir -p ${BUILD_DIR}/install_artifact/boot/
+    rsync -rvcaz ${BUILD_DIR}/arch/arm/boot/uImage ${BUILD_DIR}/install_artifact/boot/
+    rsync -rvcaz ${BUILD_DIR}/arch/arm/boot/dts/st*.dtb ${BUILD_DIR}/install_artifact/boot/
+
     # Update kernel and device tree
     cd ${BUILD_DIR}/install_artifact
     ssh root@${BOARD_IP} "apt-get update -q && apt-get install -yq rsync"
     ssh root@${BOARD_IP} mount ${BOOTFS} /boot
+    # ssh root@${BOARD_IP} "rm -rf /boot/*.dtb; rm -rf /boot/uImage; rm -rf /boot/vmlinux"
     rsync -rvcazC ${BUILD_DIR}/install_artifact/boot/* root@${BOARD_IP}:/boot/
     ssh root@${BOARD_IP} umount /boot
 
     # Update kernel modules
     # find ${BUILD_DIR}/install_artifact -name "*.ko" | xargs $STRIP --strip-debug --remove-section=.comment --remove-section=.note --preserve-dates
     echo "${KERNEL_VERSION}/source ${KERNEL_VERSION}/build" > ${BUILD_DIR}/install_artifact/lib/modules/.cvsignore
+    # ssh root@${BOARD_IP} "rm -rf /lib/modules/*"
     rsync -rvcazC ${BUILD_DIR}/install_artifact/lib/modules/* root@${BOARD_IP}:/lib/modules/
 
     # Generate a list of module dependencies (modules.dep) and a list of symbols provided by modules (modules.symbols)
