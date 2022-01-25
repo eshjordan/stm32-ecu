@@ -4,6 +4,7 @@
  * Author: Jordan Esh <jordan.esh@monashmotorsport.com> for Monash Motorsport.
  */
 
+#include "linux/cdev.h"
 #include <linux/delay.h>
 #include <linux/fs.h>
 #include <linux/ioctl.h>
@@ -22,6 +23,7 @@
 static struct class *dev_class;
 static dev_t dev = 0;
 static struct device *my_device;
+static struct cdev cdev;
 
 static int32_t value = 0;
 
@@ -71,7 +73,7 @@ static ssize_t ioctl_read(struct file *filp, char __user *buf, size_t len,
 static ssize_t ioctl_write(struct file *filp, const char __user *buf,
 			   size_t len, loff_t *off)
 {
-	printk(KERN_WARNING, "Write function\n");
+	printk(KERN_WARNING "Write function\n");
 	return len;
 }
 /*
@@ -208,6 +210,15 @@ static int __init stm32ecu_init(void)
 		return -1;
 	}
 	pr_info("Major = %d Minor = %d \n", MAJOR(dev), MINOR(dev));
+
+	/*Creating cdev structure*/
+	cdev_init(&cdev, &fops);
+
+	/*Adding character device to the system*/
+	if ((cdev_add(&cdev, dev, 1)) < 0) {
+		pr_err("Cannot add the device to the system\n");
+		goto r_class;
+	}
 
 	/*Creating struct class*/
 	if ((dev_class = class_create(THIS_MODULE, "stm32ecu_class")) == NULL) {
