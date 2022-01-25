@@ -45,10 +45,10 @@ void run_rpmsg(void const * argument)
 			sprintf(rply, reply_str " - %s", interproc_msg.name);
 			status = OPENAMP_send(&rp_endpoint, rply, strlen(rply));
 
-			if (status < 0)
-			{
-				Error_Handler();
-			}
+//			if (status < 0)
+//			{
+//				Error_Handler();
+//			}
 
 			osDelay(1);
 		}

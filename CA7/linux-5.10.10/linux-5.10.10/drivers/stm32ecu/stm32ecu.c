@@ -4,7 +4,7 @@
  * Author: Jordan Esh <jordan.esh@monashmotorsport.com> for Monash Motorsport.
  */
 
-#include "linux/cdev.h"
+#include <linux/cdev.h>
 #include <linux/delay.h>
 #include <linux/fs.h>
 #include <linux/ioctl.h>
@@ -16,7 +16,10 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/kdev_t.h>
+#include <linux/crc32.h>
 #include <linux/stm32ecu/stm32ecu.h>
+#include <linux/stm32ecu/shared/CRC.h>
+#include <linux/stm32ecu/shared/Interproc_Msg.h>
 
 #define MSG "hello world from stm32ecu!"
 
@@ -26,6 +29,16 @@ static struct device *my_device;
 static struct cdev cdev;
 
 static int32_t value = 0;
+
+CRC calc_crc(const void *data, u16 length)
+{
+	const CRC POLYNOMIAL = 0x04C11DB7U;
+	const CRC INITIAL_REMAINDER = 0xFFFFFFFFU;
+	const CRC FINAL_XOR_VALUE = 0xFFFFFFFFU;
+
+	return crc32(POLYNOMIAL ^ INITIAL_REMAINDER, data, length) ^
+	       FINAL_XOR_VALUE;
+}
 
 static int ioctl_open(struct inode *inode, struct file *file);
 static int ioctl_release(struct inode *inode, struct file *file);
@@ -157,9 +170,27 @@ static int rpmsg_sample_probe(struct rpmsg_device *rpdev)
 
 	dev_set_drvdata(&rpdev->dev, idata);
 
+	Interproc_Msg_t msg = {
+		.header = {
+			.start_byte = ECU_HEADER_START_BYTE,
+			.length = sizeof(msg),
+			.id = 1,
+			.stamp = {
+				.tv_sec = 0,
+				.tv_nsec = 0,
+			}
+		},
+		.name = "myfirstmsg",
+		.data = {0, 1, 2, 3, 4, 5, 6, 7},
+		.command = STATUS_CMD,
+		.checksum = 0
+	};
+
+	calc_crc(&msg, sizeof(Interproc_Msg_t));
+
 	while (!rpdev->dev.offline) {
 		/* send a message to our remote processor */
-		ret = rpmsg_send(rpdev->ept, MSG, strlen(MSG));
+		ret = rpmsg_send(rpdev->ept, &msg, sizeof(Interproc_Msg_t));
 		if (ret) {
 			dev_err(&rpdev->dev, "rpmsg_send failed: %d\n", ret);
 			return ret;
@@ -179,7 +210,7 @@ static void rpmsg_sample_remove(struct rpmsg_device *rpdev)
 }
 
 static struct rpmsg_device_id rpmsg_driver_sample_id_table[] = {
-	{ .name = "rpmsg-client-sample" },
+	{ .name = "stm32mp1-rpmsg" },
 	{},
 };
 MODULE_DEVICE_TABLE(rpmsg, rpmsg_driver_sample_id_table);
