@@ -60,6 +60,7 @@ if [ "${BUILD}" = "true" ]; then
 
     # Patch kernel sources
     for p in `ls -1 ${KERNEL_SOURCE_DIR}/*.patch`; do patch -p1 -N < $p; done
+    for p in `ls -1 ${ROOT_DIR}/../CustomKernel/patches/*.patch`; do patch -p0 -N < $p; done
 
     # Configure build directory
     mkdir -p ${BUILD_DIR}

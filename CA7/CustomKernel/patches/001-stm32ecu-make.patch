@@ -1,0 +1,19 @@
+unchanged:
+--- drivers/Kconfig	2022-01-26 16:19:11.252755308 +1100
++++ drivers/Kconfig	2022-01-26 16:21:08.766170917 +1100
+@@ -235,4 +235,6 @@
+ source "drivers/counter/Kconfig"
+ 
+ source "drivers/most/Kconfig"
++
++source "drivers/stm32ecu/Kconfig"
+ endmenu
+only in patch2:
+unchanged:
+--- drivers/Makefile	2022-01-26 16:19:27.604398980 +1100
++++ drivers/Makefile-new	2022-01-26 16:21:02.918300744 +1100
+@@ -189,3 +189,4 @@
+ obj-$(CONFIG_INTERCONNECT)	+= interconnect/
+ obj-$(CONFIG_COUNTER)		+= counter/
+ obj-$(CONFIG_MOST)		+= most/
++obj-m					+= stm32ecu/
