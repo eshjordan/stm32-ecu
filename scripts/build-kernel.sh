@@ -2,8 +2,9 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 KERNEL_VERSION=5.10.10
-SOURCE_DIR=${SCRIPT_DIR}/linux-${KERNEL_VERSION}
-BUILD_DIR=${SCRIPT_DIR}/build
+ROOT_DIR=${SCRIPT_DIR}/../CA7/linux-${KERNEL_VERSION}
+SOURCE_DIR=${ROOT_DIR}/linux-${KERNEL_VERSION}
+BUILD_DIR=${ROOT_DIR}/build
 KERNEL_SOURCE_DIR=/home/jordan/Documents/2021/stm32-resources/Developer-Package/stm32mp1-openstlinux-5.10-dunfell-mp1-21-03-31/sources/arm-ostl-linux-gnueabi/linux-stm32mp-5.10.10-r0
 BOARD_IP=192.168.10.129
 BOOTFS=/dev/mmcblk0p4
@@ -55,7 +56,7 @@ if [ "${BUILD}" = "true" ]; then
     cd ${SOURCE_DIR}
 
     # Prepare kernel source
-    tar xfJ ${KERNEL_SOURCE_DIR}/linux-5.10.10.tar.xz -C ${SCRIPT_DIR}
+    tar xfJ ${KERNEL_SOURCE_DIR}/linux-5.10.10.tar.xz -C ${ROOT_DIR}
 
     # Patch kernel sources
     for p in `ls -1 ${KERNEL_SOURCE_DIR}/*.patch`; do patch -p1 -N < $p; done
@@ -65,7 +66,7 @@ if [ "${BUILD}" = "true" ]; then
     make ARCH=arm O="${BUILD_DIR}" multi_v7_defconfig fragment*.config -j$(nproc)
 
     # Apply fragments
-    for f in `ls -1 ${SCRIPT_DIR}/arch/arm/configs/fragment*.config`; do ${SOURCE_DIR}/scripts/kconfig/merge_config.sh -m -r -O ${BUILD_DIR} ${BUILD_DIR}/.config $f; done
+    for f in `ls -1 ${SOURCE_DIR}/arch/arm/configs/fragment*.config`; do ${SOURCE_DIR}/scripts/kconfig/merge_config.sh -m -r -O ${BUILD_DIR} ${BUILD_DIR}/.config $f; done
     for f in `ls -1 ${KERNEL_SOURCE_DIR}/fragment*.config`; do ${SOURCE_DIR}/scripts/kconfig/merge_config.sh -m -r -O ${BUILD_DIR} ${BUILD_DIR}/.config $f; done
     yes '' | make ARCH=arm oldconfig O="${BUILD_DIR}" -j$(nproc)
 fi
@@ -80,7 +81,7 @@ if [ "${REBUILD}" = "true" ]; then
     make ARCH=arm all O="${BUILD_DIR}" -j$(nproc)
 
     # Generate compile_commands.json
-    ${SCRIPT_DIR}/linux-5.10.10/scripts/clang-tools/gen_compile_commands.py
+    ${SCRIPT_DIR}/combine_compile_commands.sh
 fi
 
 if [ "${LOAD}" = "true" ]; then
