@@ -55,6 +55,8 @@ SPI_HandleTypeDef hspi5;
 DMA_HandleTypeDef hdma_spi5_rx;
 DMA_HandleTypeDef hdma_spi5_tx;
 
+UART_HandleTypeDef huart4;
+
 osThreadId defaultTaskHandle;
 osThreadId linuxCommsHandle;
 uint32_t linuxCommsBuffer[ 128 ];
@@ -78,6 +80,7 @@ static void MX_DMA_Init(void);
 static void MX_SPI5_Init(void);
 static void MX_RNG2_Init(void);
 static void MX_I2C1_Init(void);
+// static void MX_UART4_Init(void);
 int MX_OPENAMP_Init(int RPMsgRole, rpmsg_ns_bind_cb ns_bind_cb);
 void StartDefaultTask(void const * argument);
 extern void run_rpmsg(void const * argument);
@@ -140,8 +143,16 @@ int main(void)
   MX_SPI5_Init();
   MX_RNG2_Init();
   MX_I2C1_Init();
+  // MX_UART4_Init();
   /* USER CODE BEGIN 2 */
-
+#ifdef HAL_UART_MODULE_ENABLED
+	COM_InitTypeDef COM_Init = { .BaudRate = 115200,
+				     .WordLength = 8,
+				     .StopBits = COM_STOPBITS_1,
+				     .Parity = COM_PARITY_NONE,
+				     .HwFlowCtl = COM_HWCONTROL_NONE };
+	BSP_COM_Init(COM1, &COM_Init);
+#endif
   /* USER CODE END 2 */
 
   /* Create the mutex(es) */
@@ -150,11 +161,11 @@ int main(void)
   esp32DataMutexHandle = osMutexCreate(osMutex(esp32DataMutex));
 
   /* USER CODE BEGIN RTOS_MUTEX */
-  /* add mutexes, ... */
+	/* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
-  /* add semaphores, ... */
+	/* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
 
   /* Create the timer(s) */
@@ -167,11 +178,11 @@ int main(void)
   esp_out_update_tmrHandle = osTimerCreate(osTimer(esp_out_update_tmr), osTimerPeriodic, NULL);
 
   /* USER CODE BEGIN RTOS_TIMERS */
-  /* start timers, add new ones, ... */
+	/* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
-  /* add queues, ... */
+	/* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
@@ -184,9 +195,9 @@ int main(void)
   linuxCommsHandle = osThreadCreate(osThread(linuxComms), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
-  log_info("main_running");
-  system_run();
+	/* add threads, ... */
+	log_info("main_running");
+	system_run();
   /* USER CODE END RTOS_THREADS */
 
   /* Start scheduler */
@@ -195,12 +206,11 @@ int main(void)
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+	while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+	}
   /* USER CODE END 3 */
 }
 
@@ -455,6 +465,54 @@ static void MX_SPI5_Init(void)
 
 }
 
+// /**
+//   * @brief UART4 Initialization Function
+//   * @param None
+//   * @retval None
+//   */
+// static void MX_UART4_Init(void)
+// {
+
+//   /* USER CODE BEGIN UART4_Init 0 */
+
+//   /* USER CODE END UART4_Init 0 */
+
+//   /* USER CODE BEGIN UART4_Init 1 */
+
+//   /* USER CODE END UART4_Init 1 */
+//   huart4.Instance = UART4;
+//   huart4.Init.BaudRate = 115200;
+//   huart4.Init.WordLength = UART_WORDLENGTH_8B;
+//   huart4.Init.StopBits = UART_STOPBITS_1;
+//   huart4.Init.Parity = UART_PARITY_NONE;
+//   huart4.Init.Mode = UART_MODE_TX_RX;
+//   huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+//   huart4.Init.OverSampling = UART_OVERSAMPLING_16;
+//   huart4.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+//   huart4.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+//   huart4.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+//   if (HAL_UART_Init(&huart4) != HAL_OK)
+//   {
+//     Error_Handler();
+//   }
+//   if (HAL_UARTEx_SetTxFifoThreshold(&huart4, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+//   {
+//     Error_Handler();
+//   }
+//   if (HAL_UARTEx_SetRxFifoThreshold(&huart4, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+//   {
+//     Error_Handler();
+//   }
+//   if (HAL_UARTEx_DisableFifoMode(&huart4) != HAL_OK)
+//   {
+//     Error_Handler();
+//   }
+//   /* USER CODE BEGIN UART4_Init 2 */
+
+//   /* USER CODE END UART4_Init 2 */
+
+// }
+
 /**
   * Enable DMA controller clock
   */
@@ -487,6 +545,8 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOF_CLK_ENABLE();
+  __HAL_RCC_GPIOG_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
 }
@@ -505,13 +565,12 @@ static void MX_GPIO_Init(void)
 void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
-  /* Infinite loop */
-  BSP_LED_Init(LED_ORANGE);
-  for(;;)
-  {
-    osDelay(1000);
-    BSP_LED_Toggle(LED_ORANGE);
-  }
+	/* Infinite loop */
+	BSP_LED_Init(LED_ORANGE);
+	for (;;) {
+		osDelay(1000);
+		BSP_LED_Toggle(LED_ORANGE);
+	}
   /* USER CODE END 5 */
 }
 
@@ -543,11 +602,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
+	/* User can add his own implementation to report the HAL error return state */
+	__disable_irq();
+	while (1) {
+	}
   /* USER CODE END Error_Handler_Debug */
 }
 
@@ -562,7 +620,7 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
+	/* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }

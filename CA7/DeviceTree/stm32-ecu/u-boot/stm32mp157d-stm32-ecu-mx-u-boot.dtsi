@@ -154,7 +154,7 @@
 		CLK_I2C35_DISABLED
 		CLK_UART1_DISABLED
 		CLK_UART24_HSI
-		CLK_UART35_DISABLED
+		CLK_UART35_PCLK1
 		CLK_UART6_DISABLED
 		CLK_UART78_DISABLED
 		CLK_SPDIF_DISABLED
@@ -223,11 +223,11 @@
 	/* USER CODE END iwdg2 */
 };
 
-&uart4{
+&uart5{
 	u-boot,dm-pre-reloc;
 
-	/* USER CODE BEGIN uart4 */
-	/* USER CODE END uart4 */
+	/* USER CODE BEGIN uart5 */
+	/* USER CODE END uart5 */
 };
 
 &usbotg_hs{
