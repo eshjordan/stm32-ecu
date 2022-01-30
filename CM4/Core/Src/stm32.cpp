@@ -1,10 +1,12 @@
 #include "stm32.h"
+#include "Interproc_Msg.h"
 #include "cmsis_os.h"
 #include "stm32mp15xx_disco.h"
 
 #include "System.hpp"
 
 static RNG_HandleTypeDef hrng = {};
+extern CRC_HandleTypeDef hcrc2;
 extern osTimerId esp_in_update_tmrHandle;
 extern osTimerId esp_out_update_tmrHandle;
 

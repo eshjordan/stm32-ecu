@@ -47,6 +47,16 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32MP1xx_HAL_Driver/Src/stm32mp1xx_hal_cortex.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32MP1xx_HAL_Driver/stm32mp1xx_hal_crc.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32MP1xx_HAL_Driver/Src/stm32mp1xx_hal_crc.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32MP1xx_HAL_Driver/stm32mp1xx_hal_crc_ex.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32MP1xx_HAL_Driver/Src/stm32mp1xx_hal_crc_ex.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32MP1xx_HAL_Driver/stm32mp1xx_hal_dma.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32MP1xx_HAL_Driver/Src/stm32mp1xx_hal_dma.c</locationURI>
@@ -145,6 +155,11 @@
 			<name>Drivers/STM32MP1xx_HAL_Driver/stm32mp1xx_hal_uart_ex.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32MP1xx_HAL_Driver/Src/stm32mp1xx_hal_uart_ex.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32MP1xx_HAL_Driver/stm32mp1xx_hal_wwdg.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32MP1xx_HAL_Driver/Src/stm32mp1xx_hal_wwdg.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/Third_Party/FreeRTOS/cmsis_os.c</name>

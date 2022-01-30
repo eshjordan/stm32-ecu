@@ -349,6 +349,13 @@
 		};
 	};
 
+	m4_uart4_pins_mx: m4_uart4_mx-0 {
+		pins {
+			pinmux = <STM32_PINMUX('B', 2, RSVD)>, /* UART4_RX */
+					 <STM32_PINMUX('G', 11, RSVD)>; /* UART4_TX */
+		};
+	};
+
 	sai2a_pins_mx: sai2a_mx-0 {
 		pins {
 			pinmux = <STM32_PINMUX('E', 0, AF10)>, /* SAI2_MCLK_A */
@@ -897,6 +904,13 @@
 	/* USER CODE END ltdc */
 };
 
+&m4_crc2{
+	status = "okay";
+
+	/* USER CODE BEGIN m4_crc2 */
+	/* USER CODE END m4_crc2 */
+};
+
 &m4_dma2{
 	status = "okay";
 
@@ -927,6 +941,15 @@
 
 	/* USER CODE BEGIN m4_spi5 */
 	/* USER CODE END m4_spi5 */
+};
+
+&m4_uart4{
+	pinctrl-names = "default";
+	pinctrl-0 = <&m4_uart4_pins_mx>;
+	status = "okay";
+
+	/* USER CODE BEGIN m4_uart4 */
+	/* USER CODE END m4_uart4 */
 };
 
 &mdma1{

@@ -19,7 +19,7 @@ typedef void (*rpmsg_ns_bind_cb)(struct rpmsg_device *rdev, const char *name, ui
 typedef int (*rpmsg_ept_cb)(struct rpmsg_endpoint *ept, void *data, size_t len, uint32_t src, void *priv);
 typedef void (*rpmsg_ns_unbind_cb)(struct rpmsg_endpoint *ept);
 
-#define OPENAMP_send  rpmsg_send
+#define OPENAMP_send(ept, data, len)  rpmsg_send((ept), (data), (len))
 #define OPENAMP_destroy_ept rpmsg_destroy_ept
 
 /* Exported macro ------------------------------------------------------------*/

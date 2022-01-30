@@ -27,6 +27,7 @@
 #include "stm32.h"
 #include "rpmsg_manage.h"
 #include "stm32mp15xx_disco.h"
+#include "stm32mp1xx_hal_wwdg.h"
 
 /* USER CODE END Includes */
 
@@ -45,6 +46,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+CRC_HandleTypeDef hcrc2;
+
 I2C_HandleTypeDef hi2c1;
 
 IPCC_HandleTypeDef hipcc;
@@ -57,14 +60,18 @@ DMA_HandleTypeDef hdma_spi5_tx;
 
 UART_HandleTypeDef huart4;
 
+WWDG_HandleTypeDef hwwdg1;
+
 osThreadId defaultTaskHandle;
 osThreadId linuxCommsHandle;
 uint32_t linuxCommsBuffer[ 128 ];
 osStaticThreadDef_t linuxCommsControlBlock;
 osTimerId esp_in_update_tmrHandle;
-osStaticTimerDef_t esp_in_updateControlBlock;
+osStaticTimerDef_t esp_in_update_tmrControlBlock;
 osTimerId esp_out_update_tmrHandle;
 osStaticTimerDef_t esp_out_update_tmrControlBlock;
+osTimerId wdg_refresh_tmrHandle;
+osStaticTimerDef_t wdg_refresh_tmrControlBlock;
 osMutexId esp32DataMutexHandle;
 osStaticMutexDef_t esp32DataMutexControlBlock;
 /* USER CODE BEGIN PV */
@@ -80,11 +87,14 @@ static void MX_DMA_Init(void);
 static void MX_SPI5_Init(void);
 static void MX_RNG2_Init(void);
 static void MX_I2C1_Init(void);
-// static void MX_UART4_Init(void);
+static void MX_UART4_Init(void);
+static void MX_CRC2_Init(void);
+static void MX_WWDG1_Init(void);
 int MX_OPENAMP_Init(int RPMsgRole, rpmsg_ns_bind_cb ns_bind_cb);
 void StartDefaultTask(void const * argument);
 extern void run_rpmsg(void const * argument);
 extern void esp_in_update(void const * argument);
+void wdg_refresh(void const * argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -143,9 +153,11 @@ int main(void)
   MX_SPI5_Init();
   MX_RNG2_Init();
   MX_I2C1_Init();
-  // MX_UART4_Init();
+  MX_UART4_Init();
+  MX_CRC2_Init();
+  MX_WWDG1_Init();
   /* USER CODE BEGIN 2 */
-#ifdef HAL_UART_MODULE_ENABLED
+#if (USE_BSP_COM_FEATURE == 1U)
 	COM_InitTypeDef COM_Init = { .BaudRate = 115200,
 				     .WordLength = 8,
 				     .StopBits = COM_STOPBITS_1,
@@ -170,15 +182,24 @@ int main(void)
 
   /* Create the timer(s) */
   /* definition and creation of esp_in_update_tmr */
-  osTimerStaticDef(esp_in_update_tmr, esp_in_update, &esp_in_updateControlBlock);
+  osTimerStaticDef(esp_in_update_tmr, esp_in_update, &esp_in_update_tmrControlBlock);
   esp_in_update_tmrHandle = osTimerCreate(osTimer(esp_in_update_tmr), osTimerPeriodic, NULL);
 
   /* definition and creation of esp_out_update_tmr */
   osTimerStaticDef(esp_out_update_tmr, esp_in_update, &esp_out_update_tmrControlBlock);
   esp_out_update_tmrHandle = osTimerCreate(osTimer(esp_out_update_tmr), osTimerPeriodic, NULL);
 
+  /* definition and creation of wdg_refresh_tmr */
+  osTimerStaticDef(wdg_refresh_tmr, wdg_refresh, &wdg_refresh_tmrControlBlock);
+  wdg_refresh_tmrHandle = osTimerCreate(osTimer(wdg_refresh_tmr), osTimerPeriodic, NULL);
+
   /* USER CODE BEGIN RTOS_TIMERS */
 	/* start timers, add new ones, ... */
+
+  if (osTimerStart(wdg_refresh_tmrHandle, 10) != osOK) {
+      Error_Handler();
+  }
+
   /* USER CODE END RTOS_TIMERS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
@@ -211,6 +232,9 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	}
+
+	HAL_NVIC_SystemReset();
+
   /* USER CODE END 3 */
 }
 
@@ -316,6 +340,37 @@ void PeriphCommonClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief CRC2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_CRC2_Init(void)
+{
+
+  /* USER CODE BEGIN CRC2_Init 0 */
+
+  /* USER CODE END CRC2_Init 0 */
+
+  /* USER CODE BEGIN CRC2_Init 1 */
+
+  /* USER CODE END CRC2_Init 1 */
+  hcrc2.Instance = CRC2;
+  hcrc2.Init.DefaultPolynomialUse = DEFAULT_POLYNOMIAL_ENABLE;
+  hcrc2.Init.DefaultInitValueUse = DEFAULT_INIT_VALUE_ENABLE;
+  hcrc2.Init.InputDataInversionMode = CRC_INPUTDATA_INVERSION_NONE;
+  hcrc2.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_DISABLE;
+  hcrc2.InputDataFormat = CRC_INPUTDATA_FORMAT_BYTES;
+  if (HAL_CRC_Init(&hcrc2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN CRC2_Init 2 */
+
+  /* USER CODE END CRC2_Init 2 */
+
 }
 
 /**
@@ -465,53 +520,83 @@ static void MX_SPI5_Init(void)
 
 }
 
-// /**
-//   * @brief UART4 Initialization Function
-//   * @param None
-//   * @retval None
-//   */
-// static void MX_UART4_Init(void)
-// {
+/**
+  * @brief UART4 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_UART4_Init(void)
+{
 
-//   /* USER CODE BEGIN UART4_Init 0 */
+  /* USER CODE BEGIN UART4_Init 0 */
 
-//   /* USER CODE END UART4_Init 0 */
+  /* USER CODE END UART4_Init 0 */
 
-//   /* USER CODE BEGIN UART4_Init 1 */
+  /* USER CODE BEGIN UART4_Init 1 */
 
-//   /* USER CODE END UART4_Init 1 */
-//   huart4.Instance = UART4;
-//   huart4.Init.BaudRate = 115200;
-//   huart4.Init.WordLength = UART_WORDLENGTH_8B;
-//   huart4.Init.StopBits = UART_STOPBITS_1;
-//   huart4.Init.Parity = UART_PARITY_NONE;
-//   huart4.Init.Mode = UART_MODE_TX_RX;
-//   huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-//   huart4.Init.OverSampling = UART_OVERSAMPLING_16;
-//   huart4.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-//   huart4.Init.ClockPrescaler = UART_PRESCALER_DIV1;
-//   huart4.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-//   if (HAL_UART_Init(&huart4) != HAL_OK)
-//   {
-//     Error_Handler();
-//   }
-//   if (HAL_UARTEx_SetTxFifoThreshold(&huart4, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
-//   {
-//     Error_Handler();
-//   }
-//   if (HAL_UARTEx_SetRxFifoThreshold(&huart4, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
-//   {
-//     Error_Handler();
-//   }
-//   if (HAL_UARTEx_DisableFifoMode(&huart4) != HAL_OK)
-//   {
-//     Error_Handler();
-//   }
-//   /* USER CODE BEGIN UART4_Init 2 */
+  /* USER CODE END UART4_Init 1 */
+  huart4.Instance = UART4;
+  huart4.Init.BaudRate = 115200;
+  huart4.Init.WordLength = UART_WORDLENGTH_8B;
+  huart4.Init.StopBits = UART_STOPBITS_1;
+  huart4.Init.Parity = UART_PARITY_NONE;
+  huart4.Init.Mode = UART_MODE_TX_RX;
+  huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart4.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart4.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart4.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+  huart4.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetTxFifoThreshold(&huart4, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetRxFifoThreshold(&huart4, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_DisableFifoMode(&huart4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN UART4_Init 2 */
 
-//   /* USER CODE END UART4_Init 2 */
+  /* USER CODE END UART4_Init 2 */
 
-// }
+}
+
+/**
+  * @brief WWDG1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_WWDG1_Init(void)
+{
+
+  /* USER CODE BEGIN WWDG1_Init 0 */
+
+  /* USER CODE END WWDG1_Init 0 */
+
+  /* USER CODE BEGIN WWDG1_Init 1 */
+
+  /* USER CODE END WWDG1_Init 1 */
+  hwwdg1.Instance = WWDG1;
+  hwwdg1.Init.Prescaler = WWDG_PRESCALER_64;
+  hwwdg1.Init.Window = 102;
+  hwwdg1.Init.Counter = 102;
+  hwwdg1.Init.EWIMode = WWDG_EWI_DISABLE;
+  if (HAL_WWDG_Init(&hwwdg1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN WWDG1_Init 2 */
+
+  /* USER CODE END WWDG1_Init 2 */
+
+}
 
 /**
   * Enable DMA controller clock
@@ -572,6 +657,16 @@ void StartDefaultTask(void const * argument)
 		BSP_LED_Toggle(LED_ORANGE);
 	}
   /* USER CODE END 5 */
+}
+
+/* wdg_refresh function */
+void wdg_refresh(void const * argument)
+{
+  /* USER CODE BEGIN wdg_refresh */
+
+	HAL_WWDG_Refresh(&hwwdg1);
+
+  /* USER CODE END wdg_refresh */
 }
 
 /**

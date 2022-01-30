@@ -904,6 +904,13 @@
 	/* USER CODE END ltdc */
 };
 
+&m4_crc2{
+	status = "okay";
+
+	/* USER CODE BEGIN m4_crc2 */
+	/* USER CODE END m4_crc2 */
+};
+
 &m4_dma2{
 	status = "okay";
 
