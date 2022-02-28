@@ -30,6 +30,12 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 # Source the SDK environment for cross-compilation
 source /opt/st/stm32mp1/3.1-openstlinux-5.10-dunfell-mp1-21-03-31/environment-setup-cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi
 
+# Build userspace application
+mkdir -p ${ROOT_DIR}/../stm32-ecu-manager/Default
+cd ${ROOT_DIR}/../stm32-ecu-manager/Default
+cmake ..
+make -j$(nproc)
+
 if [ "${FIRMWARE_ONLY}" = "true" ]; then
 
     # Update CM4 firmware

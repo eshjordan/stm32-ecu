@@ -80,6 +80,12 @@ if [ "${REBUILD}" = "true" ]; then
     # Build kernel module
     make ARCH=arm all O="${BUILD_DIR}" -j$(nproc)
 
+    # Build userspace application
+    mkdir -p ${ROOT_DIR}/../stm32-ecu-manager/Default
+    cd ${ROOT_DIR}/../stm32-ecu-manager/Default
+    cmake ..
+    make -j$(nproc)
+
     # Generate compile_commands.json
     ${SCRIPT_DIR}/combine_compile_commands.sh
 fi
