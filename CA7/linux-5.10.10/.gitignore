@@ -6,3 +6,4 @@ include
 *.rej
 .cache
 compile_commands.json
+.settings

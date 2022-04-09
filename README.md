@@ -221,4 +221,4 @@ Ensure you downloaded the STM32MP1 OpenSTLinux Developer Package (Source) from h
 Start STM32CubeIDE for the first time
  - Leave the default workspace directory:
  - ${HOME}/STM32CubeIDE/workspace_1.9.0
-
+ - Import the stm32-ecu project and relevant sub-projects
