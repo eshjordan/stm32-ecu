@@ -1,12 +1,13 @@
 #!/bin/bash
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
-KERNEL_VERSION=5.10.10
+KERNEL_VERSION=5.10.61
 ROOT_DIR=${SCRIPT_DIR}/../CA7/linux-${KERNEL_VERSION}
 SOURCE_DIR=${ROOT_DIR}/linux-${KERNEL_VERSION}
 BUILD_DIR=${ROOT_DIR}/build
-KERNEL_SOURCE_DIR=/home/jordan/Documents/2021/stm32-resources/Developer-Package/stm32mp1-openstlinux-5.10-dunfell-mp1-21-03-31/sources/arm-ostl-linux-gnueabi/linux-stm32mp-5.10.10-r0
-BOARD_IP=192.168.10.129
+KERNEL_SOURCE_DIR=${HOME}/STM32MP15-Ecosystem-v3.1.0/Developer-Package/stm32mp1-openstlinux-5.10-dunfell-mp1-21-11-17/sources/arm-ostl-linux-gnueabi/linux-stm32mp-5.10.61-stm32mp-r2-r0
+
+BOARD_IP=192.168.0.4
 BOOTFS=/dev/mmcblk0p4
 
 POSITIONAL=()
@@ -47,15 +48,16 @@ if [ "${BUILD}" != "true" ] && [ "${LOAD}" != "true" ] && [ "${REBUILD}" != "tru
 fi
 
 # Source the SDK environment for cross-compilation
-source /opt/st/stm32mp1/3.1-openstlinux-5.10-dunfell-mp1-21-03-31/environment-setup-cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi
+source ${HOME}/STM32MP15-Ecosystem-v3.1.0/Developer-Package/SDK/environment-setup-cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi
 
 if [ "${BUILD}" = "true" ]; then
     echo "Reconfiguring and patching kernel"
 
+    mkdir -p ${SOURCE_DIR}
     cd ${SOURCE_DIR}
 
     # Prepare kernel source
-    tar xfJ ${KERNEL_SOURCE_DIR}/linux-5.10.10.tar.xz -C ${ROOT_DIR}
+    tar xfJ ${KERNEL_SOURCE_DIR}/linux-${KERNEL_VERSION}.tar.xz -C ${ROOT_DIR}
 
     # Patch kernel sources
     for p in $(ls -1 ${KERNEL_SOURCE_DIR}/*.patch); do patch -p1 -N <$p; done
@@ -127,9 +129,11 @@ if [ "${LOAD}" = "true" ]; then
     # ssh root@${BOARD_IP} "rm -rf /lib/modules/*"
 
     # Copy all install artifacts to the target
+    ssh root@${BOARD_IP} umount ${BOOTFS}
     ssh root@${BOARD_IP} mount ${BOOTFS} /boot
     # ssh root@${BOARD_IP} "rm -rf /boot/*.dtb; rm -rf /boot/uImage; rm -rf /boot/vmlinux"
-    rsync -rvcazC ${BUILD_DIR}/install_artifact/* root@${BOARD_IP}:/
+    # ssh root@${BOARD_IP} "rm -rf /home/root; rm -rf /include; rm -rf /lib/modules"
+    # rsync -rvcazC ${BUILD_DIR}/install_artifact/* root@${BOARD_IP}:/
 
     ssh root@${BOARD_IP} "chown --silent -R root:root /"
 

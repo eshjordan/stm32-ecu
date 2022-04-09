@@ -1,0 +1,9 @@
+build
+Documentation
+arch
+drivers
+include
+*.rej
+.cache
+compile_commands.json
+.settings

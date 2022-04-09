@@ -64,7 +64,7 @@ Let's flash the downloaded image on the microSD card:
  - cd ~/STM32MP15-Ecosystem-v3.1.0/Starter-Package/stm32mp1-openstlinux-5.10-dunfell-mp1-21-11-17/images/stm32mp1
  - STM32_Programmer_CLI -l usb
  - Read the output of the last command, and replace port=<USB_NUM> in the following command with the correct port. E.g, USB1:
-   - STM32_Programmer_CLI -c port=usb1 -w flashlayout_st-image-weston/trusted/FlashLayout_sdcard_stm32mp157c-dk2-trusted.tsv
+   - STM32_Programmer_CLI -c port=usb1 -w flashlayout_st-image-weston/extensible/FlashLayout_sdcard_stm32mp157d-dk1-extensible.tsv
 
  - Flashing may take some time, ~5+ min
  - Check it flashed correctly, look for `Flashing service completed successfully` in the output
@@ -222,3 +222,4 @@ Start STM32CubeIDE for the first time
  - Leave the default workspace directory:
  - ${HOME}/STM32CubeIDE/workspace_1.9.0
  - Import the stm32-ecu project and relevant sub-projects
+ - sudo apt update && sudo apt install -y bear

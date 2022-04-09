@@ -23,10 +23,10 @@
 							<tool id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.assembler.1482953604" name="MPU GCC Assembler" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.assembler">
 								<option id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.assembler.option.debuglevel.1149812000" name="Debug level" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.assembler.option.debuglevel" value="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.assembler.option.debuglevel.value.g3" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.assembler.option.includepaths.58350560" name="Include paths (-I)" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.assembler.option.includepaths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32-ecu_CA7_linux-5.10.10/build/install_artifact/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32-ecu_linux-5.10.61/build/install_artifact/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32-ecu-manager/shared/include}&quot;"/>
 								</option>
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.assembler.option.definedsymbols.1334375115" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.assembler.option.definedsymbols" valueType="definedSymbols">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.assembler.option.definedsymbols.1334375115" name="Define symbols (-D)" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.assembler.option.definedsymbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USERSPACE_BUILD"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.assembler.input.1998771975" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.assembler.input"/>
@@ -35,10 +35,10 @@
 								<option id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.c.compiler.option.debuglevel.1913362955" name="Debug level" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.c.compiler.option.debuglevel" useByScannerDiscovery="false" value="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.c.compiler.option.debuglevel.value.g3" valueType="enumerated"/>
 								<option id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.c.compiler.option.optimization.level.427925535" name="Optimization level" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.c.compiler.option.optimization.level" useByScannerDiscovery="false" value="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.c.compiler.option.optimization.level.value.og" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.c.compiler.option.includepaths.1492330610" name="Include paths (-I)" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.c.compiler.option.includepaths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32-ecu_CA7_linux-5.10.10/build/install_artifact/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32-ecu_linux-5.10.61/build/install_artifact/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32-ecu-manager/shared/include}&quot;"/>
 								</option>
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.c.compiler.option.definedsymbols.1627883139" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.c.compiler.option.definedsymbols" valueType="definedSymbols">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.c.compiler.option.definedsymbols.1627883139" name="Define symbols (-D)" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.c.compiler.option.definedsymbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USERSPACE_BUILD"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.c.compiler.input.c.849578790" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.c.compiler.input.c"/>
@@ -47,10 +47,10 @@
 								<option id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.cpp.compiler.option.debuglevel.695103264" name="Debug level" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.cpp.compiler.option.debuglevel" useByScannerDiscovery="false" value="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.cpp.compiler.option.debuglevel.value.g3" valueType="enumerated"/>
 								<option id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.cpp.compiler.option.optimization.level.1335692273" name="Optimization level" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.cpp.compiler.option.optimization.level.value.og" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.cpp.compiler.option.includepaths.2050766235" name="Include paths (-I)" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.cpp.compiler.option.includepaths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32-ecu_CA7_linux-5.10.10/build/install_artifact/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32-ecu_linux-5.10.61/build/install_artifact/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/stm32-ecu-manager/shared/include}&quot;"/>
 								</option>
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.cpp.compiler.option.definedsymbols.284997717" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.cpp.compiler.option.definedsymbols" valueType="definedSymbols">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.cpp.compiler.option.definedsymbols.284997717" name="Define symbols (-D)" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.cpp.compiler.option.definedsymbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USERSPACE_BUILD"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.cpp.compiler.input.cpp.1105066422" superClass="com.st.stm32cube.ide.mpu.gnu.managedbuild.tool.cpp.compiler.input.cpp"/>

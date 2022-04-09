@@ -89,6 +89,7 @@ void HAL_MspInit(void)
   /* Peripheral interrupt init */
   /* RCC_WAKEUP_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(RCC_WAKEUP_IRQn, 0, 0);
+  /* RCC_WAKEUP_IRQn interrupt configuration */
   HAL_NVIC_EnableIRQ(RCC_WAKEUP_IRQn);
 
   /* USER CODE BEGIN MspInit 1 */
@@ -157,6 +158,7 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
   /* USER CODE END I2C1_MspInit 0 */
   if(IS_ENGINEERING_BOOT_MODE())
   {
+
   /** Initializes the peripherals clock
   */
     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_I2C12;
@@ -297,6 +299,7 @@ void HAL_RNG_MspInit(RNG_HandleTypeDef* hrng)
   /* USER CODE END RNG2_MspInit 0 */
   if(IS_ENGINEERING_BOOT_MODE())
   {
+
   /** Initializes the peripherals clock
   */
     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RNG2;
@@ -356,6 +359,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
   /* USER CODE END SPI5_MspInit 0 */
   if(IS_ENGINEERING_BOOT_MODE())
   {
+
   /** Initializes the peripherals clock
   */
     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_SPI45;
@@ -485,6 +489,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
   /* USER CODE END UART4_MspInit 0 */
   if(IS_ENGINEERING_BOOT_MODE())
   {
+
   /** Initializes the peripherals clock
   */
     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_UART24;
@@ -581,4 +586,3 @@ void HAL_WWDG_MspInit(WWDG_HandleTypeDef* hwwdg)
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
-

@@ -1,0 +1,16 @@
+# Set default path
+SRC_PATH ?= $(PWD)
+BLD_PATH ?= $(SRC_PATH)/../build
+
+modules_strip:
+	@cd $(BLD_PATH)
+	$(shell rm $(BLD_PATH)/$(INSTALL_MOD_PATH)/lib/modules/5.10.61/build)
+	$(shell rm $(BLD_PATH)/$(INSTALL_MOD_PATH)/lib/modules/5.10.61/source)
+	@find $(INSTALL_MOD_PATH)/ -name "*.ko" | xargs $(STRIP) --strip-debug --remove-section=.comment --remove-section=.note --preserve-dates
+
+modules_install_ide:
+	@make modules
+	@make INSTALL_MOD_PATH=install_artifact modules_install
+	
+modules_all: modules_install_ide modules_strip
+
