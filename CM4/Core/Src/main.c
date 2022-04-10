@@ -196,7 +196,7 @@ int main(void)
   /* USER CODE BEGIN RTOS_TIMERS */
 	/* start timers, add new ones, ... */
 
-  if (osTimerStart(wdg_refresh_tmrHandle, 10) != osOK) {
+  if (osTimerStart(wdg_refresh_tmrHandle, 1) != osOK) {
       Error_Handler();
   }
 
@@ -589,9 +589,9 @@ static void MX_WWDG1_Init(void)
 
   /* USER CODE END WWDG1_Init 1 */
   hwwdg1.Instance = WWDG1;
-  hwwdg1.Init.Prescaler = WWDG_PRESCALER_64;
-  hwwdg1.Init.Window = 102;
-  hwwdg1.Init.Counter = 102;
+  hwwdg1.Init.Prescaler = WWDG_PRESCALER_128;
+  hwwdg1.Init.Window = 0x7f;
+  hwwdg1.Init.Counter = 0x7f;
   hwwdg1.Init.EWIMode = WWDG_EWI_DISABLE;
   if (HAL_WWDG_Init(&hwwdg1) != HAL_OK)
   {
@@ -668,6 +668,12 @@ void StartDefaultTask(void const * argument)
 void wdg_refresh(void const * argument)
 {
   /* USER CODE BEGIN wdg_refresh */
+
+//	APB1
+//	Peripheral: 104.438965 MHz
+//	Timer: 208.87793 MHz
+//	twwdg (ms) = tpclk (ms) * 4096 * prescaler * (T[5:0] + 1)
+//	e.g. twwdg = 208.87793 * 10^6 * 4096 * 16 * (63 + 1) = 20.078133248 ms
 
 	HAL_WWDG_Refresh(&hwwdg1);
 

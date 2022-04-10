@@ -689,18 +689,6 @@
 			<resource resourceType="PROJECT" workspacePath="/stm32-ecu_CM4"/>
 		</configuration>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
-		<buildTargets>
-			<target name="Prod Debug" path="Core/Src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
-				<buildCommand>make</buildCommand>
-				<buildArguments>-j16</buildArguments>
-				<buildTarget>Prod Debug</buildTarget>
-				<stopOnError>true</stopOnError>
-				<useDefaultCommand>true</useDefaultCommand>
-				<runAllBuilders>true</runAllBuilders>
-			</target>
-		</buildTargets>
-	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1948987748.1921144316;com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1948987748.1921144316.;com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.cpp.compiler.1348045624;com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.cpp.compiler.input.cpp.1809989086">
@@ -727,5 +715,41 @@
 		<scannerConfigBuildInfo instanceId="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1948987748;com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1948987748.;com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.cpp.compiler.1908628652;com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.cpp.compiler.input.cpp.1863074321">
 			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+		<buildTargets>
+			<target name="ProdDebug" path="Core/Src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>bear</buildCommand>
+				<buildArguments>-a -o ${ProjDirPath}/compile_commands.json make</buildArguments>
+				<buildTarget>ProdDebug</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="ProdRelease" path="Core/Src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>bear</buildCommand>
+				<buildArguments>-a -o ${ProjDirPath}/compile_commands.json make</buildArguments>
+				<buildTarget>ProdRelease</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="EngDebug" path="Core/Src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>bear</buildCommand>
+				<buildArguments>-a -o ${ProjDirPath}/compile_commands.json make</buildArguments>
+				<buildTarget>EngDebug</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="EngRelease" path="Core/Src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>bear</buildCommand>
+				<buildArguments>-a -o ${ProjDirPath}/compile_commands.json make</buildArguments>
+				<buildTarget>EngRelease</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+		</buildTargets>
 	</storageModule>
 </cproject>

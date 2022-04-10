@@ -31,7 +31,7 @@ add_subdirectory(
 
 include_directories(
     ${ECU_SHARED_INCLUDE}
-    "../linux-5.10.10/build/install_artifact/include"
+    "../linux-5.10.61/build/install_artifact/include"
 )
 
 add_executable(stm32-ecu-manager
