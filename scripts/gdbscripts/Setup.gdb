@@ -189,11 +189,12 @@ if $debug_mode == 1
 	stepi
 end
 
-add-auto-load-safe-path /home/jordan/Documents/2021/stm32-ecu/CA7/linux-5.10.10/build
-source /home/jordan/Documents/2021/stm32-ecu/CA7/linux-5.10.10/build/vmlinux-gdb.py
-cd /home/jordan/Documents/2021/stm32-ecu/CA7/linux-5.10.10/build
-b kernel/module.c:3901
-directory ../linux-5.10.10/drivers/stm32ecu/
+add-auto-load-safe-path /home/jordan/stm32-ecu/CA7/linux-5.10.61/build
+source /home/jordan/stm32-ecu/CA7/linux-5.10.61/build/vmlinux-gdb.py
+cd /home/jordan/stm32-ecu/CA7/linux-5.10.61/build
+# b kernel/module.c:3901
+b load_module
+directory ../linux-5.10.61/drivers/stm32ecu/
 
 # continue
-# source /home/jordan/Documents/2021/stm32-ecu/CA7/gdbscripts/moduleDbg.gdb
+# source /home/jordan/stm32-ecu/scripts/gdbscripts/moduleDbg.gdb

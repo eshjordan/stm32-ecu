@@ -26,8 +26,8 @@ static int send_ack(struct rpmsg_endpoint *ept)
 static int stm32ecu_recv_cb(struct rpmsg_endpoint *ept, void *data, size_t len,
 			    uint32_t src, void *priv)
 {
-
 	if (len == sizeof(Interproc_Msg_t) && interproc_msg_check(data) > 0) {
+		char rply[128] = { 0 };
 		interproc_msg = *((Interproc_Msg_t *)data);
 
 		switch (interproc_msg.command) {
@@ -53,7 +53,7 @@ static int stm32ecu_recv_cb(struct rpmsg_endpoint *ept, void *data, size_t len,
 		}
 
 		case RESET_CMD: {
-			send_ack(&rp_stm32ecu_endpoint);
+			send_ack(ept);
 			break;
 		}
 
@@ -64,6 +64,9 @@ static int stm32ecu_recv_cb(struct rpmsg_endpoint *ept, void *data, size_t len,
 			break;
 		}
 		}
+
+		sprintf(rply, reply_str " - %d", interproc_msg.command);
+		OPENAMP_send(ept, rply, strlen(rply));
 
 		message_received = 1;
 	}
@@ -94,14 +97,10 @@ void run_rpmsg(void const *argument)
 
 				osDelay(1);
 
-				HAL_WWDG_Refresh(&hwwdg1);
+				// HAL_WWDG_Refresh(&hwwdg1);
 			}
 
 			message_received = 0;
-			char rply[128] = { 0 };
-			sprintf(rply, reply_str " - %d", interproc_msg.command);
-			status = OPENAMP_send(&rp_stm32ecu_endpoint, rply,
-					      strlen(rply));
 
 			osDelay(1);
 		}

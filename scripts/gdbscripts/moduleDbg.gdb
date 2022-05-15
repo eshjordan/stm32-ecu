@@ -1,5 +1,5 @@
 
-cd /home/jordan/Documents/2021/stm32-ecu/CA7/linux-5.10.10/build
+cd /home/jordan/stm32-ecu/CA7/linux-5.10.61/build
 
 lx-symbols drivers/stm32ecu/stm32ecu.ko
 
