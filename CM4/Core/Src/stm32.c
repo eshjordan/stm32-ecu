@@ -1,11 +1,12 @@
 #include "stm32.h"
 #include "Interproc_Msg.h"
+#include "System.h"
 #include "cmsis_os.h"
 #include "stm32mp15xx_disco.h"
 
-#include "System.hpp"
+#include "System.h"
 
-static RNG_HandleTypeDef hrng = {};
+static RNG_HandleTypeDef hrng = {0};
 extern CRC_HandleTypeDef hcrc2;
 extern osTimerId esp_in_update_tmrHandle;
 extern osTimerId esp_out_update_tmrHandle;
@@ -36,8 +37,8 @@ void system_run(void)
 	BSP_LED_Init(LED_GREEN);
 	BSP_LED_On(LED_GREEN);
 
-	System::init(0, nullptr);
-	System::run();
+	systemInit(0, NULL);
+	systemRun();
 }
 
 int rand(void)

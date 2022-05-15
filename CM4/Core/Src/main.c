@@ -155,7 +155,7 @@ int main(void)
   MX_I2C1_Init();
   MX_UART4_Init();
   MX_CRC2_Init();
-  MX_WWDG1_Init();
+  // MX_WWDG1_Init();
   /* USER CODE BEGIN 2 */
 #if (USE_BSP_COM_FEATURE == 1U)
 	COM_InitTypeDef COM_Init = { .BaudRate = 115200,
