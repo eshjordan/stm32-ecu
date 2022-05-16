@@ -3,7 +3,8 @@
 
 #include "main.h"
 #include "openamp_log.h"
-#include "stm32_openamp_wrapper.h"
+#include "linuxComms.h"
+#include "stm32OpenampWrapper.h"
 
 #define ALIGN __attribute__((aligned(4)))
 

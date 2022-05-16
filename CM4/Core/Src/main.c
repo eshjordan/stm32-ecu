@@ -24,10 +24,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "stm32.h"
-#include "rpmsg_manage.h"
 #include "stm32mp15xx_disco.h"
-#include "stm32mp1xx_hal_wwdg.h"
+
+#include "stm32System.h"
 
 /* USER CODE END Includes */
 
@@ -60,9 +59,7 @@ DMA_HandleTypeDef hdma_spi5_tx;
 
 UART_HandleTypeDef huart4;
 
-WWDG_HandleTypeDef hwwdg1;
-
-osThreadId defaultTaskHandle;
+osThreadId ledAliveHandle;
 osThreadId linuxCommsHandle;
 uint32_t linuxCommsBuffer[ 128 ];
 osStaticThreadDef_t linuxCommsControlBlock;
@@ -70,8 +67,6 @@ osTimerId esp_in_update_tmrHandle;
 osStaticTimerDef_t esp_in_update_tmrControlBlock;
 osTimerId esp_out_update_tmrHandle;
 osStaticTimerDef_t esp_out_update_tmrControlBlock;
-osTimerId wdg_refresh_tmrHandle;
-osStaticTimerDef_t wdg_refresh_tmrControlBlock;
 osMutexId esp32DataMutexHandle;
 osStaticMutexDef_t esp32DataMutexControlBlock;
 /* USER CODE BEGIN PV */
@@ -89,12 +84,11 @@ static void MX_RNG2_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_UART4_Init(void);
 static void MX_CRC2_Init(void);
-static void MX_WWDG1_Init(void);
 int MX_OPENAMP_Init(int RPMsgRole, rpmsg_ns_bind_cb ns_bind_cb);
-void StartDefaultTask(void const * argument);
-extern void run_rpmsg(void const * argument);
+void ledAliveRunner(void const * argument);
+extern void runLinuxComms(void const * argument);
 extern void esp_in_update(void const * argument);
-void wdg_refresh(void const * argument);
+extern void esp_out_update(void const * argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -155,7 +149,6 @@ int main(void)
   MX_I2C1_Init();
   MX_UART4_Init();
   MX_CRC2_Init();
-  // MX_WWDG1_Init();
   /* USER CODE BEGIN 2 */
 #if (USE_BSP_COM_FEATURE == 1U)
 	COM_InitTypeDef COM_Init = { .BaudRate = 115200,
@@ -186,19 +179,11 @@ int main(void)
   esp_in_update_tmrHandle = osTimerCreate(osTimer(esp_in_update_tmr), osTimerPeriodic, NULL);
 
   /* definition and creation of esp_out_update_tmr */
-  osTimerStaticDef(esp_out_update_tmr, esp_in_update, &esp_out_update_tmrControlBlock);
+  osTimerStaticDef(esp_out_update_tmr, esp_out_update, &esp_out_update_tmrControlBlock);
   esp_out_update_tmrHandle = osTimerCreate(osTimer(esp_out_update_tmr), osTimerPeriodic, NULL);
-
-  /* definition and creation of wdg_refresh_tmr */
-  osTimerStaticDef(wdg_refresh_tmr, wdg_refresh, &wdg_refresh_tmrControlBlock);
-  wdg_refresh_tmrHandle = osTimerCreate(osTimer(wdg_refresh_tmr), osTimerPeriodic, NULL);
 
   /* USER CODE BEGIN RTOS_TIMERS */
 	/* start timers, add new ones, ... */
-
-  if (osTimerStart(wdg_refresh_tmrHandle, 1) != osOK) {
-      Error_Handler();
-  }
 
   /* USER CODE END RTOS_TIMERS */
 
@@ -207,12 +192,12 @@ int main(void)
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
-  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+  /* definition and creation of ledAlive */
+  osThreadDef(ledAlive, ledAliveRunner, osPriorityNormal, 0, 128);
+  ledAliveHandle = osThreadCreate(osThread(ledAlive), NULL);
 
   /* definition and creation of linuxComms */
-  osThreadStaticDef(linuxComms, run_rpmsg, osPriorityNormal, 0, 128, linuxCommsBuffer, &linuxCommsControlBlock);
+  osThreadStaticDef(linuxComms, runLinuxComms, osPriorityNormal, 0, 128, linuxCommsBuffer, &linuxCommsControlBlock);
   linuxCommsHandle = osThreadCreate(osThread(linuxComms), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -574,36 +559,6 @@ static void MX_UART4_Init(void)
 }
 
 /**
-  * @brief WWDG1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_WWDG1_Init(void)
-{
-
-  /* USER CODE BEGIN WWDG1_Init 0 */
-
-  /* USER CODE END WWDG1_Init 0 */
-
-  /* USER CODE BEGIN WWDG1_Init 1 */
-
-  /* USER CODE END WWDG1_Init 1 */
-  hwwdg1.Instance = WWDG1;
-  hwwdg1.Init.Prescaler = WWDG_PRESCALER_128;
-  hwwdg1.Init.Window = 0x7f;
-  hwwdg1.Init.Counter = 0x7f;
-  hwwdg1.Init.EWIMode = WWDG_EWI_DISABLE;
-  if (HAL_WWDG_Init(&hwwdg1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN WWDG1_Init 2 */
-
-  /* USER CODE END WWDG1_Init 2 */
-
-}
-
-/**
   * Enable DMA controller clock
   */
 static void MX_DMA_Init(void)
@@ -645,14 +600,14 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartDefaultTask */
+/* USER CODE BEGIN Header_ledAliveRunner */
 /**
   * @brief  Function implementing the defaultTask thread.
   * @param  argument: Not used
   * @retval None
   */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void const * argument)
+/* USER CODE END Header_ledAliveRunner */
+void ledAliveRunner(void const * argument)
 {
   /* USER CODE BEGIN 5 */
 	/* Infinite loop */
@@ -662,22 +617,6 @@ void StartDefaultTask(void const * argument)
 		BSP_LED_Toggle(LED_ORANGE);
 	}
   /* USER CODE END 5 */
-}
-
-/* wdg_refresh function */
-void wdg_refresh(void const * argument)
-{
-  /* USER CODE BEGIN wdg_refresh */
-
-//	APB1
-//	Peripheral: 104.438965 MHz
-//	Timer: 208.87793 MHz
-//	twwdg (ms) = tpclk (ms) * 4096 * prescaler * (T[5:0] + 1)
-//	e.g. twwdg = 208.87793 * 10^6 * 4096 * 16 * (63 + 1) = 20.078133248 ms
-
-	HAL_WWDG_Refresh(&hwwdg1);
-
-  /* USER CODE END wdg_refresh */
 }
 
 /**

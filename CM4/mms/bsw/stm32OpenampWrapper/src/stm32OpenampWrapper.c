@@ -1,4 +1,5 @@
-#include "stm32_openamp_wrapper.h"
+#include "stm32OpenampWrapper.h"
+
 #include "openamp.h"
 #include "stdarg.h"
 #include "stm32mp15xx_disco.h"

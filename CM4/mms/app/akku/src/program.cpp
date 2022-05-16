@@ -1,7 +1,8 @@
 #include "System.hpp"
 
 #include "stm32mp15xx_disco.h"
-#include "stm32.h"
+
+#include "stm32System.h"
 
 
 REGISTER_ROUTINE(point_mass_model, 10, 128)

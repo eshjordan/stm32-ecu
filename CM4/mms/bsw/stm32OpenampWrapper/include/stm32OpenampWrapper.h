@@ -8,6 +8,7 @@ extern "C" {
 #include "stdint.h"
 #include "stddef.h"
 #include "openamp_conf.h"
+#include "openamp/rpmsg.h"
 
 struct rpmsg_endpoint;
 struct rpmsg_device;
