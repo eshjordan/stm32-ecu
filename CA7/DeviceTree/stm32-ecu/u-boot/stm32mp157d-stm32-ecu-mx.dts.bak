@@ -333,10 +333,31 @@
 		};
 	};
 
+	m4_fdcan1_pins_mx: m4_fdcan1_mx-0 {
+		pins {
+			pinmux = <STM32_PINMUX('A', 11, RSVD)>, /* FDCAN1_RX */
+					 <STM32_PINMUX('D', 1, RSVD)>; /* FDCAN1_TX */
+		};
+	};
+
+	m4_fdcan2_pins_mx: m4_fdcan2_mx-0 {
+		pins {
+			pinmux = <STM32_PINMUX('B', 12, RSVD)>, /* FDCAN2_RX */
+					 <STM32_PINMUX('B', 13, RSVD)>; /* FDCAN2_TX */
+		};
+	};
+
 	m4_i2c1_pins_mx: m4_i2c1_mx-0 {
 		pins {
 			pinmux = <STM32_PINMUX('D', 12, RSVD)>, /* I2C1_SCL */
 					 <STM32_PINMUX('F', 15, RSVD)>; /* I2C1_SDA */
+		};
+	};
+
+	m4_spi1_pins_mx: m4_spi1_mx-0 {
+		pins {
+			pinmux = <STM32_PINMUX('B', 3, RSVD)>, /* SPI1_SCK */
+					 <STM32_PINMUX('B', 4, RSVD)>; /* SPI1_MISO */
 		};
 	};
 
@@ -455,31 +476,6 @@
 		};
 	};
 
-	uart5_pins_mx: uart5_mx-0 {
-		u-boot,dm-pre-reloc;
-		pins1 {
-			u-boot,dm-pre-reloc;
-			pinmux = <STM32_PINMUX('B', 13, AF14)>; /* UART5_TX */
-			bias-disable;
-			drive-push-pull;
-			slew-rate = <0>;
-		};
-		pins2 {
-			u-boot,dm-pre-reloc;
-			pinmux = <STM32_PINMUX('B', 5, AF12)>; /* UART5_RX */
-			bias-disable;
-		};
-	};
-
-	uart5_sleep_pins_mx: uart5_sleep_mx-0 {
-		u-boot,dm-pre-reloc;
-		pins {
-			u-boot,dm-pre-reloc;
-			pinmux = <STM32_PINMUX('B', 5, ANALOG)>, /* UART5_RX */
-					 <STM32_PINMUX('B', 13, ANALOG)>; /* UART5_TX */
-		};
-	};
-
 	/* USER CODE BEGIN pinctrl */
 	/* USER CODE END pinctrl */
 };
@@ -505,6 +501,12 @@
 			u-boot,dm-pre-reloc;
 			pinmux = <STM32_PINMUX('Z', 4, ANALOG)>, /* I2C4_SCL */
 					 <STM32_PINMUX('Z', 5, ANALOG)>; /* I2C4_SDA */
+		};
+	};
+
+	m4_spi1_pins_z_mx: m4_spi1_mx-0 {
+		pins {
+			pinmux = <STM32_PINMUX('Z', 2, RSVD)>; /* SPI1_MOSI */
 		};
 	};
 
@@ -927,11 +929,38 @@
 	/* USER CODE END m4_i2c1 */
 };
 
+&m4_m_can1{
+	pinctrl-names = "default";
+	pinctrl-0 = <&m4_fdcan1_pins_mx>;
+	status = "okay";
+
+	/* USER CODE BEGIN m4_m_can1 */
+	/* USER CODE END m4_m_can1 */
+};
+
+&m4_m_can2{
+	pinctrl-names = "default";
+	pinctrl-0 = <&m4_fdcan2_pins_mx>;
+	status = "okay";
+
+	/* USER CODE BEGIN m4_m_can2 */
+	/* USER CODE END m4_m_can2 */
+};
+
 &m4_rng2{
 	status = "okay";
 
 	/* USER CODE BEGIN m4_rng2 */
 	/* USER CODE END m4_rng2 */
+};
+
+&m4_spi1{
+	pinctrl-names = "default";
+	pinctrl-0 = <&m4_spi1_pins_mx &m4_spi1_pins_z_mx>;
+	status = "okay";
+
+	/* USER CODE BEGIN m4_spi1 */
+	/* USER CODE END m4_spi1 */
 };
 
 &m4_spi5{
@@ -1066,17 +1095,6 @@
 
 	/* USER CODE BEGIN tamp */
 	/* USER CODE END tamp */
-};
-
-&uart5{
-	u-boot,dm-pre-reloc;
-	pinctrl-names = "default", "sleep";
-	pinctrl-0 = <&uart5_pins_mx>;
-	pinctrl-1 = <&uart5_sleep_pins_mx>;
-	status = "okay";
-
-	/* USER CODE BEGIN uart5 */
-	/* USER CODE END uart5 */
 };
 
 &usbh_ehci{

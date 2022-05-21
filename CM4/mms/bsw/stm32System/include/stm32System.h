@@ -12,6 +12,9 @@
 extern "C" {
 #endif
 
+extern SPI_HandleTypeDef *const esp32_spi_handle;
+extern SPI_HandleTypeDef *const mcp2515_spi_handle;
+
 extern void initialise_monitor_handles();
 
 void system_run(void);
