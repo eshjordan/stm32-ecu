@@ -30,6 +30,7 @@ REGISTER_ROUTINE(print_state, 1, 512)
 	BSP_LED_Toggle(LED_GREEN);
 
 	printf("pos: %lf, vel: %lf, acc: %lf\n", pos, vel, acc);
-	printf("Analogue Input 4: %lumV\n", System::IO::read_analogue_input(4));
+	uint32_t analogue_ch_05 = System::IO::read_analogue_input(IO_ADC_CHANNEL_05);
+	printf("Analogue Input 5: %lumV\n", analogue_ch_05);
 	log_info("print_state_run");
 }
