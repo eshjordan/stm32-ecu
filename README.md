@@ -223,3 +223,12 @@ Start STM32CubeIDE for the first time
  - ${HOME}/STM32CubeIDE/workspace_1.9.0
  - Import the stm32-ecu project and relevant sub-projects
  - sudo apt update && sudo apt install -y bear
+
+# ESP32
+Install the ESP-IDF extension:
+Id: espressif.esp-idf-extension
+VS Marketplace Link: https://marketplace.visualstudio.com/items?itemName=espressif.esp-idf-extension
+
+`echo "alias get_idf='. $HOME/esp/esp-idf/export.sh'" >> ~/.bashrc`
+
+`sudo cp ${HOME}/.espressif/tools/openocd-esp32/v0.11.0-esp32-20211220/openocd-esp32/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d`

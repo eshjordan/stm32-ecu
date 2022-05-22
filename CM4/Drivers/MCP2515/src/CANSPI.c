@@ -116,10 +116,14 @@ uint8_t CANSPI_Initialize(void)
   
   /* 1 0 000 011(4tq) */  
   MCP2515_WriteByte(MCP2515_CNF3, 0x83);
-  
-  /* Normal 모드로 설정 */
-  if(!MCP2515_SetNormalMode())
+
+  /* Loopback 모드로 설정 */
+  if(!MCP2515_SetLoopbackMode())
     return 0;
+  
+  // /* Normal 모드로 설정 */
+  // if(!MCP2515_SetNormalMode())
+  //   return 0;
   
   return 1;
 }

@@ -217,6 +217,7 @@ uint8_t MCP2515_Initialize(void);
 uint8_t MCP2515_SetConfigMode(void);
 uint8_t MCP2515_SetNormalMode(void);
 uint8_t MCP2515_SetSleepMode(void);
+uint8_t MCP2515_SetLoopbackMode(void);
 void MCP2515_Reset(void);
 uint8_t MCP2515_ReadByte (uint8_t address);
 void MCP2515_ReadRxSequence(uint8_t instruction, uint8_t *data, uint8_t length);

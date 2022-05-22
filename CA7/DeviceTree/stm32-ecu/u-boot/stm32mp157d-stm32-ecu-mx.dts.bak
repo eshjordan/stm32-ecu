@@ -245,25 +245,6 @@
 		};
 	};
 
-	i2s2_pins_mx: i2s2_mx-0 {
-		pins {
-			pinmux = <STM32_PINMUX('A', 9, AF5)>, /* I2S2_CK */
-					 <STM32_PINMUX('B', 9, AF5)>, /* I2S2_WS */
-					 <STM32_PINMUX('I', 3, AF5)>; /* I2S2_SDO */
-			bias-disable;
-			drive-push-pull;
-			slew-rate = <1>;
-		};
-	};
-
-	i2s2_sleep_pins_mx: i2s2_sleep_mx-0 {
-		pins {
-			pinmux = <STM32_PINMUX('A', 9, ANALOG)>, /* I2S2_CK */
-					 <STM32_PINMUX('B', 9, ANALOG)>, /* I2S2_WS */
-					 <STM32_PINMUX('I', 3, ANALOG)>; /* I2S2_SDO */
-		};
-	};
-
 	ltdc_pins_mx: ltdc_mx-0 {
 		pins {
 			pinmux = <STM32_PINMUX('A', 3, AF14)>, /* LTDC_B5 */
@@ -354,10 +335,12 @@
 		};
 	};
 
-	m4_spi1_pins_mx: m4_spi1_mx-0 {
+	m4_spi4_pins_mx: m4_spi4_mx-0 {
 		pins {
-			pinmux = <STM32_PINMUX('B', 3, RSVD)>, /* SPI1_SCK */
-					 <STM32_PINMUX('B', 4, RSVD)>; /* SPI1_MISO */
+			pinmux = <STM32_PINMUX('E', 11, RSVD)>, /* SPI4_NSS */
+					 <STM32_PINMUX('E', 12, RSVD)>, /* SPI4_SCK */
+					 <STM32_PINMUX('E', 13, RSVD)>, /* SPI4_MISO */
+					 <STM32_PINMUX('E', 14, RSVD)>; /* SPI4_MOSI */
 		};
 	};
 
@@ -501,12 +484,6 @@
 			u-boot,dm-pre-reloc;
 			pinmux = <STM32_PINMUX('Z', 4, ANALOG)>, /* I2C4_SCL */
 					 <STM32_PINMUX('Z', 5, ANALOG)>; /* I2C4_SDA */
-		};
-	};
-
-	m4_spi1_pins_z_mx: m4_spi1_mx-0 {
-		pins {
-			pinmux = <STM32_PINMUX('Z', 2, RSVD)>; /* SPI1_MOSI */
 		};
 	};
 
@@ -851,27 +828,6 @@
 	/* USER CODE END i2c4 */
 };
 
-&i2s2{
-	pinctrl-names = "default", "sleep";
-	pinctrl-0 = <&i2s2_pins_mx>;
-	pinctrl-1 = <&i2s2_sleep_pins_mx>;
-	status = "okay";
-
-	/* USER CODE BEGIN i2s2 */
-	clocks = <&rcc SPI2>, <&rcc SPI2_K>, <&rcc PLL3_Q>, <&rcc PLL3_R>;
-	clock-names = "pclk", "i2sclk", "x8k", "x11k";
-
-	i2s2_port:port{
-
-		i2s2_endpoint:endpoint{
-			remote-endpoint = <&sii9022_tx_endpoint>;
-			format = "i2s";
-			mclk-fs = <256>;
-		};
-	};
-	/* USER CODE END i2s2 */
-};
-
 &ipcc{
 	status = "okay";
 
@@ -954,13 +910,13 @@
 	/* USER CODE END m4_rng2 */
 };
 
-&m4_spi1{
+&m4_spi4{
 	pinctrl-names = "default";
-	pinctrl-0 = <&m4_spi1_pins_mx &m4_spi1_pins_z_mx>;
+	pinctrl-0 = <&m4_spi4_pins_mx>;
 	status = "okay";
 
-	/* USER CODE BEGIN m4_spi1 */
-	/* USER CODE END m4_spi1 */
+	/* USER CODE BEGIN m4_spi4 */
+	/* USER CODE END m4_spi4 */
 };
 
 &m4_spi5{

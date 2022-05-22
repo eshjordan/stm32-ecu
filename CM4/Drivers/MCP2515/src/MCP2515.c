@@ -70,6 +70,25 @@ uint8_t MCP2515_SetNormalMode(void)
   return 0;
 }
 
+/* MCP2515 Loopback Mode*/
+uint8_t MCP2515_SetLoopbackMode(void)
+{
+  /* CANCTRL Register Loopback 모드 설정 */
+  MCP2515_WriteByte(MCP2515_CANCTRL, 0x40);
+  
+  uint8_t loop = 10;
+  
+  do {    
+    /* 모드전환 확인 */    
+    if((MCP2515_ReadByte(MCP2515_CANSTAT) & 0xE0) == 0x40)
+      return 1;
+    
+    loop--;
+  } while(loop > 0);
+  
+  return 0;
+}
+
 /* MCP2515 를 Sleep 모드로 전환 */
 uint8_t MCP2515_SetSleepMode(void)
 {
