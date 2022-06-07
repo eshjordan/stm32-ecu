@@ -6,6 +6,32 @@
 #include <linux/stm32ecu/stm32ecu.h>
 #include <linux/stm32ecu/Interproc_Msg.h>
 
+#include "ecu.grpc.pb.h"
+#include "ecu.pb.h"
+#include "grpcpp/server_builder.h"
+
+
+class RouteGuideImpl final : public helloworld::Greeter::Service {
+	::grpc::Status SayHello(::grpc::ServerContext* context, const ::helloworld::HelloRequest* request, ::helloworld::HelloReply* response) override {
+		response->set_message("Hello " + request->name());
+		return ::grpc::Status::OK;
+	}
+};
+
+
+void RunServer() {
+  std::string server_address("0.0.0.0:50051");
+  RouteGuideImpl service;
+
+  grpc::ServerBuilder builder;
+  builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+  builder.RegisterService(&service);
+  std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
+  std::cout << "Server listening on " << server_address << std::endl;
+  server->Wait();
+}
+
+
 int main(int argc, char **argv)
 {
 	int status;
@@ -75,6 +101,8 @@ int main(int argc, char **argv)
 	printf("stm32ecu ioctl success!\n");
 
 	close(fd);
+
+	RunServer();
 
 	return 0;
 }

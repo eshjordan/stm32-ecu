@@ -28,15 +28,68 @@ done
 
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
+
+# Build helloworld example for x86.
+# Will find and use protoc and grpc_cpp_plugin for the host architecture.
+mkdir -p ${ROOT_DIR}/../stm32-ecu-manager/build/client
+pushd ${ROOT_DIR}/../stm32-ecu-manager/build/client
+
+cmake \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_SERVER=OFF \
+    -DBUILD_CLIENT=ON \
+    ../..
+
+make -j8
+
+popd
+
+
 # Source the SDK environment for cross-compilation
+unset LD_LIBRARY_PATH
 source ${HOME}/STM32MP15-Ecosystem-v3.1.0/Developer-Package/SDK/environment-setup-cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi
 
+
 # Build userspace application
-mkdir -p ${ROOT_DIR}/../stm32-ecu-manager/Default
-cd ${ROOT_DIR}/../stm32-ecu-manager/Default
-rm -rf ${ROOT_DIR}/../stm32-ecu-manager/Default/*
-cmake ..
-make -j$(nproc)
+# STM32_MANAGER_BUILD_DIR=${ROOT_DIR}/../stm32-ecu-manager/build
+
+mkdir -p ${ROOT_DIR}/../stm32-ecu-manager/build/server
+pushd ${ROOT_DIR}/../stm32-ecu-manager/build/server
+
+GRPC_BUILD_DIR=${SCRIPT_DIR}/../CA7/stm32-ecu-manager/grpc/cmake/build/install_arm
+
+# Write a toolchain file to use for cross-compiling.
+echo "SET(CMAKE_SYSTEM_NAME Linux)" >/tmp/toolchain.cmake
+echo "SET(CMAKE_SYSTEM_PROCESSOR arm)" >>/tmp/toolchain.cmake
+# echo "SET(CMAKE_STAGING_PREFIX ${STM32_MANAGER_BUILD_DIR})" >>/tmp/toolchain.cmake
+echo "SET(CMAKE_C_COMPILER /usr/bin/arm-linux-gnueabihf-gcc)" >>/tmp/toolchain.cmake
+echo "SET(CMAKE_CXX_COMPILER /usr/bin/arm-linux-gnueabihf-g++)" >>/tmp/toolchain.cmake
+echo "SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)" >>/tmp/toolchain.cmake
+echo "SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)" >>/tmp/toolchain.cmake
+echo "SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)" >>/tmp/toolchain.cmake
+echo "SET(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)" >>/tmp/toolchain.cmake
+echo "SET(CMAKE_C_COMPILE_FLAGS '\${CMAKE_C_COMPILE_FLAGS} -mthumb -mfpu=neon-vfpv4 -mfloat-abi=hard -mcpu=cortex-a7')" >>/tmp/toolchain.cmake
+echo "SET(CMAKE_CXX_COMPILE_FLAGS '\${CMAKE_CXX_COMPILE_FLAGS} -mthumb -mfpu=neon-vfpv4 -mfloat-abi=hard -mcpu=cortex-a7')" >>/tmp/toolchain.cmake
+echo "SET(CMAKE_LINKER_FLAGS '\${CMAKE_LINKER_FLAGS}')" >>/tmp/toolchain.cmake
+
+# cmake \
+#     -DCMAKE_TOOLCHAIN_FILE=/tmp/toolchain.cmake \
+#     -DCMAKE_BUILD_TYPE=Release \
+#     -DBUILD_SERVER=ON \
+#     -DBUILD_CLIENT=OFF \
+#     ..
+cmake \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_SERVER=ON \
+    -DBUILD_CLIENT=OFF \
+    -Dabsl_DIR=${GRPC_BUILD_DIR}/lib/cmake/absl \
+    -DProtobuf_DIR=${GRPC_BUILD_DIR}/lib/cmake/protobuf \
+    -DgRPC_DIR=${GRPC_BUILD_DIR}/lib/cmake/grpc \
+    ../..
+
+make -j8
+
+popd
 
 if [ "${FIRMWARE_ONLY}" = "true" ]; then
 
@@ -44,7 +97,7 @@ if [ "${FIRMWARE_ONLY}" = "true" ]; then
     rsync -rvcaz ${ROOT_DIR}/../../CM4/ProdDebug/stm32-ecu_CM4.elf root@${BOARD_IP}:/home/root/stm32-ecu_CM4.elf | true
 
     # Update userspace application
-    rsync -rvcaz ${ROOT_DIR}/../stm32-ecu-manager/Default/stm32-ecu-manager root@${BOARD_IP}:/home/root/stm32-ecu-manager | true
+    rsync -rvcaz ${ROOT_DIR}/../stm32-ecu-manager/build/server/stm32-ecu-manager root@${BOARD_IP}:/home/root/stm32-ecu-manager | true
 
     ssh root@${BOARD_IP} "chown --silent root:root \
 /home/root/stm32-ecu_CM4.elf \
@@ -79,7 +132,7 @@ else
     rsync -rvcaz ${ROOT_DIR}/../../CM4/ProdDebug/stm32-ecu_CM4.elf root@${BOARD_IP}:/home/root/stm32-ecu_CM4.elf | true
 
     # Update userspace application
-    rsync -rvcaz ${ROOT_DIR}/../stm32-ecu-manager/Default/stm32-ecu-manager root@${BOARD_IP}:/home/root/stm32-ecu-manager | true
+    rsync -rvcaz ${ROOT_DIR}/../stm32-ecu-manager/build/server/stm32-ecu-manager root@${BOARD_IP}:/home/root/stm32-ecu-manager | true
 
     ssh root@${BOARD_IP} "chown --silent -R root:root \
 /boot/uImage \
