@@ -61,6 +61,13 @@ set(CMAKE_CXX_STANDARD 14)
 
 find_package(Threads REQUIRED)
 
+if(BUILD_SERVER)
+  set(GRPC_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/grpc/cmake/build/install_arm)
+  set(absl_DIR ${GRPC_BUILD_DIR}/lib/cmake/absl)
+  set(Protobuf_DIR ${GRPC_BUILD_DIR}/lib/cmake/protobuf)
+  set(gRPC_DIR ${GRPC_BUILD_DIR}/lib/cmake/grpc)
+endif()
+
 # This branch assumes that gRPC and all its dependencies are already installed
 # on this system, so they can be located by find_package().
 
@@ -72,7 +79,7 @@ message(STATUS "Using protobuf ${Protobuf_VERSION}")
 
 set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
 set(_REFLECTION gRPC::grpc++_reflection)
-if(CMAKE_CROSSCOMPILING)
+if(BUILD_SERVER)
   find_program(_PROTOBUF_PROTOC protoc)
 else()
   set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
@@ -84,7 +91,7 @@ find_package(gRPC CONFIG REQUIRED)
 message(STATUS "Using gRPC ${gRPC_VERSION}")
 
 set(_GRPC_GRPCPP gRPC::grpc++)
-if(CMAKE_CROSSCOMPILING)
+if(BUILD_SERVER)
   find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
 else()
   set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
@@ -150,13 +157,6 @@ if(BUILD_SERVER)
       ${_PROTOBUF_LIBPROTOBUF}
   )
 
-  add_custom_command(
-      TARGET stm32-ecu-manager POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy
-          ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
-          ${CMAKE_SOURCE_DIR}/compile_commands.json
-  )
-
 endif()
 
 
@@ -174,13 +174,6 @@ if(BUILD_CLIENT)
       ${_GRPC_GRPCPP}
       ${_REFLECTION}
       ${_PROTOBUF_LIBPROTOBUF}
-  )
-
-  add_custom_command(
-      TARGET stm32-ecu-client POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy
-          ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
-          ${CMAKE_SOURCE_DIR}/compile_commands.json
   )
 
 endif()
