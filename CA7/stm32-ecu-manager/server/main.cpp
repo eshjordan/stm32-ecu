@@ -127,6 +127,14 @@ void sig_handler(int signum)
 	//Return type of the handler function should be void
 	printf("\nInside handler function\n");
 	close(fd);
+	switch (signum) {
+	case SIGINT: {
+		exit(0);
+	}
+	default: {
+		exit(1);
+	}
+	}
 }
 
 int main(int argc, char **argv)
