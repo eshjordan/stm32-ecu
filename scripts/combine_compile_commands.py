@@ -20,7 +20,8 @@ file_paths = {}
 file_paths['compile_commands.json'] = [
     f"{root_dir}/CA7/linux-5.10.61",
     f"{root_dir}/CM4",
-    f"{root_dir}/CA7/stm32-ecu-manager"
+    f"{root_dir}/build/client",
+    f"{root_dir}/build/server"
 ]
 
 # for each file in the dictionary, concatenate
@@ -36,7 +37,7 @@ for f, paths in file_paths.items():
     else:
         with open(p) as f2:
             txt.append('['+f2.read()[1:-2]+',')
-    
+
     for p in paths[1:-1]:
         pth = os.path.join(p, f)
         if os.path.islink(pth):
@@ -45,7 +46,7 @@ for f, paths in file_paths.items():
         else:
             with open(pth) as f2:
                 txt.append(f2.read()[1:-2]+',')
-    
+
     p = os.path.join(paths[-1], f)
     if os.path.islink(p):
         with open(os.path.join(os.path.dirname(p), os.readlink(p))) as f2:

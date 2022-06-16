@@ -157,6 +157,13 @@ if(BUILD_SERVER)
       ${_PROTOBUF_LIBPROTOBUF}
   )
 
+  add_custom_command(
+    TARGET stm32-ecu-manager POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_BINARY_DIR}/compile_commands.json
+        ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
+  )
+
 endif()
 
 
@@ -174,6 +181,13 @@ if(BUILD_CLIENT)
       ${_GRPC_GRPCPP}
       ${_REFLECTION}
       ${_PROTOBUF_LIBPROTOBUF}
+  )
+
+  add_custom_command(
+    TARGET stm32-ecu-client POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_BINARY_DIR}/compile_commands.json
+        ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
   )
 
 endif()
