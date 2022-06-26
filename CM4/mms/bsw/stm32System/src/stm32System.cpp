@@ -11,6 +11,7 @@ extern CRC_HandleTypeDef hcrc2;
 extern osTimerId esp_in_update_tmrHandle;
 extern osTimerId esp_out_update_tmrHandle;
 
+extern FDCAN_HandleTypeDef hfdcan1;
 extern SPI_HandleTypeDef hspi4;
 extern SPI_HandleTypeDef hspi5;
 
@@ -36,12 +37,16 @@ void system_run(void)
 		initialise_monitor_handles();
 	}
 
+
+	hrng.Instance = RNG1;
+	hrng.Init.ClockErrorDetection = RNG_CED_ENABLE;
 	HAL_RNG_MspInit(&hrng);
 	if(HAL_RNG_Init(&hrng) != HAL_OK)
 	{
 		Error_Handler();
 	}
 	
+	HAL_FDCAN_Start(&hfdcan1);
 	stm32StartTimers();
 
 	BSP_LED_Init(LED_GREEN);

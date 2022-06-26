@@ -6,8 +6,6 @@
 
 #include "stm32System.h"
 
-#include "CANSPI.h"
-
 
 REGISTER_ROUTINE(point_mass_model, 10, 128)
 {
