@@ -12,6 +12,7 @@
 extern "C" {
 #endif
 
+extern FDCAN_HandleTypeDef *const can_bus_01_handle;
 extern SPI_HandleTypeDef *const esp32_spi_handle;
 extern SPI_HandleTypeDef *const mcp2515_spi_handle;
 

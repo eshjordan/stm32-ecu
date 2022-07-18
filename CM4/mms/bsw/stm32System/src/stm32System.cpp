@@ -15,16 +15,17 @@ extern FDCAN_HandleTypeDef hfdcan1;
 extern SPI_HandleTypeDef hspi4;
 extern SPI_HandleTypeDef hspi5;
 
+FDCAN_HandleTypeDef *const can_bus_01_handle = &hfdcan1;
 SPI_HandleTypeDef *const mcp2515_spi_handle = &hspi4;
 SPI_HandleTypeDef *const esp32_spi_handle = &hspi5;
 
 static void stm32StartTimers(void) {
-	if(osTimerStart(esp_in_update_tmrHandle, 100) != osOK)
+	if(osTimerStart(esp_in_update_tmrHandle, 1000) != osOK)
 	{
 	 Error_Handler();
 	}
 
-	if(osTimerStart(esp_out_update_tmrHandle, 100) != osOK)
+	if(osTimerStart(esp_out_update_tmrHandle, 1000) != osOK)
 	{
 	  Error_Handler();
 	}
@@ -45,8 +46,18 @@ void system_run(void)
 	{
 		Error_Handler();
 	}
-	
-	HAL_FDCAN_Start(&hfdcan1);
+
+	HAL_FDCAN_MspInit(can_bus_01_handle);
+	if(HAL_FDCAN_Init(can_bus_01_handle) != HAL_OK)
+	{
+		Error_Handler();
+	}
+
+	if(HAL_FDCAN_Start(can_bus_01_handle) != HAL_OK)
+	{
+		Error_Handler();
+	}
+
 	stm32StartTimers();
 
 	BSP_LED_Init(LED_GREEN);

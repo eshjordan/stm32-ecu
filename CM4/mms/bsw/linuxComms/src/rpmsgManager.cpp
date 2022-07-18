@@ -4,7 +4,7 @@
 #define SHUTDOWN_CHANNEL "shutdown"
 #define STM32ECU_CHANNEL "stm32ecu"
 
-#define reply_str "CM4 RECV OK!"
+const char reply_str[] = "CM4 RECV OK!";
 
 uint8_t RpmsgManager::message_received = 0;
 Interproc_Msg_t RpmsgManager::interproc_msg = {};
@@ -19,7 +19,7 @@ int RpmsgManager::stm32ecu_recv_cb(struct rpmsg_endpoint *ept, void *data,
                                    unsigned int len, uint32_t src, void *priv) {
   if (len == sizeof(Interproc_Msg_t) &&
       interproc_msg_check((Interproc_Msg_t *)data) > 0) {
-    char rply[128] = {0};
+    char rply[32] = {0};
     interproc_msg = *((Interproc_Msg_t *)data);
 
     switch (interproc_msg.command) {
@@ -57,7 +57,7 @@ int RpmsgManager::stm32ecu_recv_cb(struct rpmsg_endpoint *ept, void *data,
     }
     }
 
-    sprintf(rply, reply_str " - %d", interproc_msg.command);
+    sprintf(rply, "%s - %d", reply_str, interproc_msg.command);
     OPENAMP_send(ept, rply, strlen(rply));
 
     message_received = 1;

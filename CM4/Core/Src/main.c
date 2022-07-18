@@ -63,6 +63,8 @@ DMA_HandleTypeDef hdma_spi5_rx;
 UART_HandleTypeDef huart4;
 
 osThreadId ledAliveHandle;
+uint32_t ledAliveBuffer[ 256 ];
+osStaticThreadDef_t ledAliveControlBlock;
 osThreadId linuxCommsHandle;
 uint32_t linuxCommsBuffer[ 128 ];
 osStaticThreadDef_t linuxCommsControlBlock;
@@ -200,7 +202,7 @@ int main(void)
 
   /* Create the thread(s) */
   /* definition and creation of ledAlive */
-  osThreadDef(ledAlive, ledAliveRunner, osPriorityNormal, 0, 128);
+  osThreadStaticDef(ledAlive, ledAliveRunner, osPriorityNormal, 0, 256, ledAliveBuffer, &ledAliveControlBlock);
   ledAliveHandle = osThreadCreate(osThread(ledAlive), NULL);
 
   /* definition and creation of linuxComms */
@@ -385,7 +387,7 @@ static void MX_FDCAN1_Init(void)
   /* USER CODE END FDCAN1_Init 1 */
   hfdcan1.Instance = FDCAN1;
   hfdcan1.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
-  hfdcan1.Init.Mode = FDCAN_MODE_NORMAL;
+  hfdcan1.Init.Mode = FDCAN_MODE_INTERNAL_LOOPBACK;
   hfdcan1.Init.AutoRetransmission = DISABLE;
   hfdcan1.Init.TransmitPause = DISABLE;
   hfdcan1.Init.ProtocolException = DISABLE;
@@ -402,14 +404,14 @@ static void MX_FDCAN1_Init(void)
   hfdcan1.Init.ExtFiltersNbr = 0;
   hfdcan1.Init.RxFifo0ElmtsNbr = 4;
   hfdcan1.Init.RxFifo0ElmtSize = FDCAN_DATA_BYTES_8;
-  hfdcan1.Init.RxFifo1ElmtsNbr = 0;
+  hfdcan1.Init.RxFifo1ElmtsNbr = 4;
   hfdcan1.Init.RxFifo1ElmtSize = FDCAN_DATA_BYTES_8;
-  hfdcan1.Init.RxBuffersNbr = 0;
+  hfdcan1.Init.RxBuffersNbr = 4;
   hfdcan1.Init.RxBufferSize = FDCAN_DATA_BYTES_8;
-  hfdcan1.Init.TxEventsNbr = 0;
-  hfdcan1.Init.TxBuffersNbr = 0;
+  hfdcan1.Init.TxEventsNbr = 4;
+  hfdcan1.Init.TxBuffersNbr = 4;
   hfdcan1.Init.TxFifoQueueElmtsNbr = 4;
-  hfdcan1.Init.TxFifoQueueMode = FDCAN_TX_QUEUE_OPERATION;
+  hfdcan1.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
   hfdcan1.Init.TxElmtSize = FDCAN_DATA_BYTES_8;
   if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
   {
