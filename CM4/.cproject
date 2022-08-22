@@ -212,14 +212,14 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Common"/>
-						<entry excluding="CMakeLists.txt|drivers/|FreeRTOS-Plus/|RTOS_IP.cpp|FreeRTOSConfig.h|RTOS_IP.hpp|FreeRTOS/|FreeRTOSIPConfig.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/libs"/>
-						<entry excluding="CMakeLists.txt" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/shared"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="OPENAMP"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="mms"/>
-						<entry excluding="CMakeLists.txt|portable/raspi/|portable/raspi+esp32/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/sdk"/>
 						<entry excluding="Src/system/sysmem.c|Src/system/syscalls.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="Core"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="OPENAMP"/>
+						<entry excluding="CMakeLists.txt|drivers/|FreeRTOS-Plus/|RTOS_IP.cpp|FreeRTOSConfig.h|RTOS_IP.hpp|FreeRTOS/|FreeRTOSIPConfig.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/libs"/>
+						<entry excluding="CMakeLists.txt|portable/raspi/|portable/raspi+esp32/|portable/x86/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/sdk"/>
+						<entry excluding="CMakeLists.txt" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/shared"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="mms"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -428,14 +428,14 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Common"/>
-						<entry excluding="CMakeLists.txt|drivers/|FreeRTOS-Plus/|RTOS_IP.cpp|FreeRTOSConfig.h|RTOS_IP.hpp|FreeRTOS/|FreeRTOSIPConfig.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/libs"/>
-						<entry excluding="CMakeLists.txt" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/shared"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="OPENAMP"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="mms"/>
-						<entry excluding="CMakeLists.txt|portable/raspi/|portable/raspi+esp32/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/sdk"/>
 						<entry excluding="Src/system/sysmem.c|Src/system/syscalls.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="OPENAMP"/>
+						<entry excluding="CMakeLists.txt|drivers/|FreeRTOS-Plus/|RTOS_IP.cpp|FreeRTOSConfig.h|RTOS_IP.hpp|FreeRTOS/|FreeRTOSIPConfig.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/libs"/>
+						<entry excluding="CMakeLists.txt|portable/raspi/|portable/raspi+esp32/|portable/x86/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/sdk"/>
+						<entry excluding="CMakeLists.txt" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/shared"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="mms"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -646,14 +646,14 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Common"/>
-						<entry excluding="CMakeLists.txt|drivers/|FreeRTOS-Plus/|RTOS_IP.cpp|FreeRTOSConfig.h|RTOS_IP.hpp|FreeRTOS/|FreeRTOSIPConfig.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/libs"/>
-						<entry excluding="CMakeLists.txt" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/shared"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="OPENAMP"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="mms"/>
-						<entry excluding="CMakeLists.txt|portable/raspi/|portable/raspi+esp32/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/sdk"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="OPENAMP"/>
+						<entry excluding="CMakeLists.txt|drivers/|FreeRTOS-Plus/|RTOS_IP.cpp|FreeRTOSConfig.h|RTOS_IP.hpp|FreeRTOS/|FreeRTOSIPConfig.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/libs"/>
+						<entry excluding="CMakeLists.txt|portable/raspi/|portable/raspi+esp32/|portable/x86/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/sdk"/>
+						<entry excluding="CMakeLists.txt" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/shared"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="mms"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -858,14 +858,14 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Common"/>
-						<entry excluding="CMakeLists.txt|drivers/|FreeRTOS-Plus/|RTOS_IP.cpp|FreeRTOSConfig.h|RTOS_IP.hpp|FreeRTOS/|FreeRTOSIPConfig.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/libs"/>
-						<entry excluding="CMakeLists.txt" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/shared"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="OPENAMP"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="mms"/>
-						<entry excluding="CMakeLists.txt|portable/raspi/|portable/raspi+esp32/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/sdk"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="OPENAMP"/>
+						<entry excluding="CMakeLists.txt|drivers/|FreeRTOS-Plus/|RTOS_IP.cpp|FreeRTOSConfig.h|RTOS_IP.hpp|FreeRTOS/|FreeRTOSIPConfig.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/libs"/>
+						<entry excluding="CMakeLists.txt|portable/raspi/|portable/raspi+esp32/|portable/x86/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/sdk"/>
+						<entry excluding="CMakeLists.txt" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="ecu-dev/src/shared"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="mms"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

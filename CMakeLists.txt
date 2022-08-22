@@ -18,4 +18,9 @@ else()
     set(BUILD_CLIENT ON)
 endif()
 
+add_compile_definitions(STM32_BUILD)
+
+add_subdirectory(CM4/ecu-dev)
+
 add_subdirectory(CA7/stm32-ecu-manager ${BUILD_DIR})
+

@@ -52,7 +52,9 @@ include_directories(
     "../linux-5.10.61/build/install_artifact/include"
 )
 
-add_subdirectory("shared")
+if(NOT TARGET ecu_shared)
+  add_subdirectory("../../CM4/ecu-dev/src/shared" "shared")
+endif()
 
 ## gRPC communications library
 # After using add_subdirectory, we can now use the grpc targets directly from this build.
