@@ -13,10 +13,10 @@ INIT_MODULE(Accumulator)
 	System::add_parameter<double>("position", 0.0f);
 	System::add_parameter<double>("velocity", 0.0f);
 	System::add_parameter<double>("acceleration", 1.0f);
-	System::add_channel<double>("accel_log", 0.0f, CHANNEL_LOG_100HZ);
+//	System::add_channel<double>("accel_log", 0.0f, CHANNEL_LOG_100HZ);
 }
 
-REGISTER_ROUTINE(point_mass_model, 10, 128)
+REGISTER_ROUTINE(point_mass_model, 10, 256)
 {
 	// read parameters by name
 	auto pos = System::get_parameter<double>("position");
@@ -32,7 +32,7 @@ REGISTER_ROUTINE(point_mass_model, 10, 128)
 	System::set_parameter("velocity", vel);
 }
 
-REGISTER_ROUTINE(print_state, 1, 512)
+REGISTER_ROUTINE(print_state, 1, 256)
 {
 	auto pos = System::get_parameter<double>("position");
 	auto vel = System::get_parameter<double>("velocity");

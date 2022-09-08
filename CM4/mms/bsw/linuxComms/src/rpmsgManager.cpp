@@ -79,7 +79,7 @@ void RpmsgManager::create_endpoint(const char *channel,
 
 extern "C" {
 
-void runLinuxComms(void const *argument) {
+void runLinuxComms(void *argument) {
   if (!IS_ENGINEERING_BOOT_MODE()) {
     osDelay(5000);
     RpmsgManager::create_endpoint(STM32ECU_CHANNEL, RPMSG_ADDR_ANY);

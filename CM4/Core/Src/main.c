@@ -31,6 +31,9 @@
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
+typedef StaticTask_t osStaticThreadDef_t;
+typedef StaticTimer_t osStaticTimerDef_t;
+typedef StaticSemaphore_t osStaticMutexDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -57,23 +60,59 @@ RNG_HandleTypeDef hrng2;
 
 SPI_HandleTypeDef hspi4;
 SPI_HandleTypeDef hspi5;
-DMA_HandleTypeDef hdma_spi5_tx;
 DMA_HandleTypeDef hdma_spi5_rx;
+DMA_HandleTypeDef hdma_spi5_tx;
 
 UART_HandleTypeDef huart4;
 
-osThreadId ledAliveHandle;
+/* Definitions for ledAlive */
+osThreadId_t ledAliveHandle;
 uint32_t ledAliveBuffer[ 256 ];
 osStaticThreadDef_t ledAliveControlBlock;
-osThreadId linuxCommsHandle;
+const osThreadAttr_t ledAlive_attributes = {
+  .name = "ledAlive",
+  .cb_mem = &ledAliveControlBlock,
+  .cb_size = sizeof(ledAliveControlBlock),
+  .stack_mem = &ledAliveBuffer[0],
+  .stack_size = sizeof(ledAliveBuffer),
+  .priority = (osPriority_t) osPriorityNormal,
+};
+/* Definitions for linuxComms */
+osThreadId_t linuxCommsHandle;
 uint32_t linuxCommsBuffer[ 128 ];
 osStaticThreadDef_t linuxCommsControlBlock;
-osTimerId esp_in_update_tmrHandle;
+const osThreadAttr_t linuxComms_attributes = {
+  .name = "linuxComms",
+  .cb_mem = &linuxCommsControlBlock,
+  .cb_size = sizeof(linuxCommsControlBlock),
+  .stack_mem = &linuxCommsBuffer[0],
+  .stack_size = sizeof(linuxCommsBuffer),
+  .priority = (osPriority_t) osPriorityNormal,
+};
+/* Definitions for esp_in_update_tmr */
+osTimerId_t esp_in_update_tmrHandle;
 osStaticTimerDef_t esp_in_update_tmrControlBlock;
-osTimerId esp_out_update_tmrHandle;
+const osTimerAttr_t esp_in_update_tmr_attributes = {
+  .name = "esp_in_update_tmr",
+  .cb_mem = &esp_in_update_tmrControlBlock,
+  .cb_size = sizeof(esp_in_update_tmrControlBlock),
+};
+/* Definitions for esp_out_update_tmr */
+osTimerId_t esp_out_update_tmrHandle;
 osStaticTimerDef_t esp_out_update_tmrControlBlock;
-osMutexId esp32DataMutexHandle;
+const osTimerAttr_t esp_out_update_tmr_attributes = {
+  .name = "esp_out_update_tmr",
+  .cb_mem = &esp_out_update_tmrControlBlock,
+  .cb_size = sizeof(esp_out_update_tmrControlBlock),
+};
+/* Definitions for esp32DataMutex */
+osMutexId_t esp32DataMutexHandle;
 osStaticMutexDef_t esp32DataMutexControlBlock;
+const osMutexAttr_t esp32DataMutex_attributes = {
+  .name = "esp32DataMutex",
+  .cb_mem = &esp32DataMutexControlBlock,
+  .cb_size = sizeof(esp32DataMutexControlBlock),
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -92,10 +131,10 @@ static void MX_CRC2_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_SPI4_Init(void);
 int MX_OPENAMP_Init(int RPMsgRole, rpmsg_ns_bind_cb ns_bind_cb);
-void ledAliveRunner(void const * argument);
-extern void runLinuxComms(void const * argument);
-extern void esp_in_update(void const * argument);
-extern void esp_out_update(void const * argument);
+void ledAliveRunner(void *argument);
+extern void runLinuxComms(void *argument);
+extern void esp_in_update(void *argument);
+extern void esp_out_update(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -169,10 +208,11 @@ int main(void)
 #endif
   /* USER CODE END 2 */
 
+  /* Init scheduler */
+  osKernelInitialize();
   /* Create the mutex(es) */
-  /* definition and creation of esp32DataMutex */
-  osMutexStaticDef(esp32DataMutex, &esp32DataMutexControlBlock);
-  esp32DataMutexHandle = osMutexCreate(osMutex(esp32DataMutex));
+  /* creation of esp32DataMutex */
+  esp32DataMutexHandle = osMutexNew(&esp32DataMutex_attributes);
 
   /* USER CODE BEGIN RTOS_MUTEX */
 	/* add mutexes, ... */
@@ -183,13 +223,11 @@ int main(void)
   /* USER CODE END RTOS_SEMAPHORES */
 
   /* Create the timer(s) */
-  /* definition and creation of esp_in_update_tmr */
-  osTimerStaticDef(esp_in_update_tmr, esp_in_update, &esp_in_update_tmrControlBlock);
-  esp_in_update_tmrHandle = osTimerCreate(osTimer(esp_in_update_tmr), osTimerPeriodic, NULL);
+  /* creation of esp_in_update_tmr */
+  esp_in_update_tmrHandle = osTimerNew(esp_in_update, osTimerPeriodic, NULL, &esp_in_update_tmr_attributes);
 
-  /* definition and creation of esp_out_update_tmr */
-  osTimerStaticDef(esp_out_update_tmr, esp_out_update, &esp_out_update_tmrControlBlock);
-  esp_out_update_tmrHandle = osTimerCreate(osTimer(esp_out_update_tmr), osTimerPeriodic, NULL);
+  /* creation of esp_out_update_tmr */
+  esp_out_update_tmrHandle = osTimerNew(esp_out_update, osTimerPeriodic, NULL, &esp_out_update_tmr_attributes);
 
   /* USER CODE BEGIN RTOS_TIMERS */
 	/* start timers, add new ones, ... */
@@ -201,19 +239,21 @@ int main(void)
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* definition and creation of ledAlive */
-  osThreadStaticDef(ledAlive, ledAliveRunner, osPriorityNormal, 0, 256, ledAliveBuffer, &ledAliveControlBlock);
-  ledAliveHandle = osThreadCreate(osThread(ledAlive), NULL);
+  /* creation of ledAlive */
+  ledAliveHandle = osThreadNew(ledAliveRunner, NULL, &ledAlive_attributes);
 
-  /* definition and creation of linuxComms */
-  osThreadStaticDef(linuxComms, runLinuxComms, osPriorityNormal, 0, 128, linuxCommsBuffer, &linuxCommsControlBlock);
-  linuxCommsHandle = osThreadCreate(osThread(linuxComms), NULL);
+  /* creation of linuxComms */
+  linuxCommsHandle = osThreadNew(runLinuxComms, NULL, &linuxComms_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
 	/* add threads, ... */
 	log_info("main_running");
 	system_run();
   /* USER CODE END RTOS_THREADS */
+
+  /* USER CODE BEGIN RTOS_EVENTS */
+  /* add events, ... */
+  /* USER CODE END RTOS_EVENTS */
 
   /* Start scheduler */
   osKernelStart();
@@ -727,7 +767,7 @@ static void MX_GPIO_Init(void)
   * @retval None
   */
 /* USER CODE END Header_ledAliveRunner */
-void ledAliveRunner(void const * argument)
+void ledAliveRunner(void *argument)
 {
   /* USER CODE BEGIN 5 */
 	/* Infinite loop */

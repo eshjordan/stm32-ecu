@@ -8,7 +8,7 @@ extern "C" {
 #include "cmsis_os.h"
 #include "main.h"
 
-void runLinuxComms(void const *argument);
+void runLinuxComms(void *argument);
 
 #ifdef __cplusplus
 }
