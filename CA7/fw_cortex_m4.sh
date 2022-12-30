@@ -27,3 +27,4 @@ if [ $1 == "stop" ]
 then
         # Stop the firmware
         /bin/echo -n stop > $rproc_class_dir/state
+fi

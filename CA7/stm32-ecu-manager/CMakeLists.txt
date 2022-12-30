@@ -21,9 +21,17 @@
 # See https://blog.kitware.com/cmake-superbuilds-git-submodules/
 
 cmake_minimum_required(VERSION 3.5.1)
+cmake_policy(SET CMP0077 NEW)
 
 # Project
 project(stm32-ecu-manager C CXX)
+
+option(STM32_ECU_MANAGER_BUILD_SERVER OFF)
+option(STM32_ECU_MANAGER_BUILD_CLIENT ON)
+
+if(STM32_ECU_MANAGER_BUILD_SERVER AND STM32_ECU_MANAGER_BUILD_CLIENT)
+  message(FATAL_ERROR "Can't build both stm32-ecu-manager server and client simultaneously")
+endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_BUILD_TYPE "Debug")
@@ -63,7 +71,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 find_package(Threads REQUIRED)
 
-if(BUILD_SERVER)
+if(STM32_ECU_MANAGER_BUILD_SERVER)
   set(GRPC_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/grpc/cmake/build/install_arm)
   set(absl_DIR ${GRPC_BUILD_DIR}/lib/cmake/absl)
   set(Protobuf_DIR ${GRPC_BUILD_DIR}/lib/cmake/protobuf)
@@ -79,35 +87,22 @@ set(protobuf_MODULE_COMPATIBLE TRUE)
 find_package(Protobuf CONFIG REQUIRED)
 message(STATUS "Using protobuf ${Protobuf_VERSION}")
 
-set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
-set(_REFLECTION gRPC::grpc++_reflection)
-if(BUILD_SERVER)
-  find_program(_PROTOBUF_PROTOC protoc)
-else()
-  set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
-endif()
-
 # Find gRPC installation
 # Looks for gRPCConfig.cmake file installed by gRPC's cmake installation.
 find_package(gRPC CONFIG REQUIRED)
 message(STATUS "Using gRPC ${gRPC_VERSION}")
 
-set(_GRPC_GRPCPP gRPC::grpc++)
-if(BUILD_SERVER)
+if(STM32_ECU_MANAGER_BUILD_SERVER)
+  find_program(_PROTOBUF_PROTOC protoc)
   find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
 else()
+  set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
   set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 endif()
 
-# add_subdirectory("grpc")
-
-# find_program(_PROTOBUF_PROTOC protoc)
-# find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
-# set(_PROTOBUF_PROTOC "${CMAKE_CURRENT_BINARY_DIR}/grpc/third_party/protobuf/protoc")
-# set(_GRPC_CPP_PLUGIN_EXECUTABLE "${CMAKE_CURRENT_BINARY_DIR}/grpc/grpc_cpp_plugin")
 
 # Proto file
-get_filename_component(ecu_proto "protos/ecu.proto" ABSOLUTE)
+get_filename_component(ecu_proto "${CMAKE_CURRENT_SOURCE_DIR}/protos/ecu.proto" ABSOLUTE)
 get_filename_component(ecu_proto_path "${ecu_proto}" PATH)
 
 # Generated sources
@@ -115,15 +110,25 @@ set(ecu_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/ecu.pb.cc")
 set(ecu_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/ecu.pb.h")
 set(ecu_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/ecu.grpc.pb.cc")
 set(ecu_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/ecu.grpc.pb.h")
+
 add_custom_command(
-      OUTPUT "${ecu_proto_srcs}" "${ecu_proto_hdrs}" "${ecu_grpc_srcs}" "${ecu_grpc_hdrs}"
-      COMMAND "${_PROTOBUF_PROTOC}"
-      ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
+      OUTPUT
+        "${ecu_proto_srcs}"
+        "${ecu_proto_hdrs}"
+        "${ecu_grpc_srcs}"
+        "${ecu_grpc_hdrs}"
+      COMMAND
+        "${_PROTOBUF_PROTOC}"
+      ARGS
+        --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
         --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
         -I "${ecu_proto_path}"
         --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
         "${ecu_proto}"
-      DEPENDS "${ecu_proto}")
+      DEPENDS
+        "${ecu_proto}"
+)
+
 
 # Include generated *.pb.h files
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
@@ -137,59 +142,49 @@ add_library(ecu_grpc_proto
 )
 
 target_link_libraries(ecu_grpc_proto
-  ${_GRPC_GRPCPP}
-  ${_REFLECTION}
-  ${_PROTOBUF_LIBPROTOBUF}
+  gRPC::grpc++
+  gRPC::grpc++_reflection
+  protobuf::libprotobuf
 )
 
 
-if(BUILD_SERVER)
+if(STM32_ECU_MANAGER_BUILD_SERVER)
 
   ## stm32-ecu-manager executable
   add_executable(stm32-ecu-manager
-      server/main.cpp
+      ${CMAKE_CURRENT_SOURCE_DIR}/server/main.cpp
       ${SHARED_SRC}
   )
 
   target_link_libraries(stm32-ecu-manager
       ecu_shared
       ecu_grpc_proto
-      ${_GRPC_GRPCPP}
-      ${_REFLECTION}
-      ${_PROTOBUF_LIBPROTOBUF}
+
+      gRPC::grpc++
+      gRPC::grpc++_reflection
+      protobuf::libprotobuf
   )
 
-  add_custom_command(
-    TARGET stm32-ecu-manager POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_BINARY_DIR}/compile_commands.json
-        ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
-  )
+  add_dependencies(stm32-ecu-manager kernel_install)
 
 endif()
 
 
-if(BUILD_CLIENT)
+if(STM32_ECU_MANAGER_BUILD_CLIENT)
 
   ## stm32-ecu-client executable
   add_executable(stm32-ecu-client
-      client/main.cpp
-      # ${SHARED_SRC}
+    ${CMAKE_CURRENT_SOURCE_DIR}/client/main.cpp
+    ${SHARED_SRC}
   )
 
   target_link_libraries(stm32-ecu-client
-      # ecu_shared
+      ecu_shared
       ecu_grpc_proto
-      ${_GRPC_GRPCPP}
-      ${_REFLECTION}
-      ${_PROTOBUF_LIBPROTOBUF}
-  )
 
-  add_custom_command(
-    TARGET stm32-ecu-client POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_BINARY_DIR}/compile_commands.json
-        ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
+      gRPC::grpc++
+      gRPC::grpc++_reflection
+      protobuf::libprotobuf
   )
 
 endif()

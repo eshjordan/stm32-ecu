@@ -6,7 +6,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include <linux/stm32ecu/Interproc_Msg.h>
+#include <linux/stm32ecu/shared/Interproc_Msg.h>
 #include <linux/stm32ecu/stm32ecu.h>
 
 #include "ecu.grpc.pb.h"

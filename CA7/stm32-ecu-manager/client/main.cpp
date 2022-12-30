@@ -4,9 +4,6 @@
 #include <thread>
 #include <unistd.h>
 
-#include <linux/stm32ecu/Interproc_Msg.h>
-#include <linux/stm32ecu/stm32ecu.h>
-
 #include "ecu.grpc.pb.h"
 #include "ecu.pb.h"
 #include "grpcpp/grpcpp.h"
