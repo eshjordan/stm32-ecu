@@ -79,28 +79,25 @@ endif()
 
 include_directories(
     # "-I/opt/st/stm32cubeide_1.8.0/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.linux64_2.0.0.202105311346/tools/arm-none-eabi/include"
-    "/home/jordan/Documents/2021/stm32-ecu/CM4/Core"
-    "/home/jordan/Documents/2021/stm32-ecu/CM4/Core/Inc"
-    "/home/jordan/Documents/2021/stm32-ecu/Drivers/STM32MP1xx_HAL_Driver/Inc"
-    "/home/jordan/Documents/2021/stm32-ecu/Drivers/STM32MP1xx_HAL_Driver/Inc/Legacy"
-    "/home/jordan/Documents/2021/stm32-ecu/Drivers/CMSIS/Device/ST/STM32MP1xx/Include"
-    "/home/jordan/Documents/2021/stm32-ecu/Drivers/CMSIS/Include"
-    "/home/jordan/Documents/2021/stm32-ecu/Middlewares/Third_Party/FreeRTOS/Source/include"
-    "/home/jordan/Documents/2021/stm32-ecu/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"
-    "/home/jordan/Documents/2021/stm32-ecu/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"
-    "/home/jordan/Documents/2021/stm32-ecu/CM4/Drivers/BSP/STM32MP15xx_DISCO"
-    "/home/jordan/Documents/2021/stm32-ecu/CM4/OPENAMP"
-    "/home/jordan/Documents/2021/stm32-ecu/Middlewares/Third_Party/OpenAMP/open-amp/lib/include"
-    "/home/jordan/Documents/2021/stm32-ecu/Middlewares/Third_Party/OpenAMP/libmetal/lib/include"
-    "/home/jordan/Documents/2021/stm32-ecu/Middlewares/Third_Party/OpenAMP/virtual_driver"
-    "/home/jordan/Documents/2021/stm32-ecu/Drivers/STM32MP1xx_HAL_Driver/Inc"
-    "/home/jordan/Documents/2021/stm32-ecu/CM4/Core/Inc"
-    "/home/jordan/Documents/2021/stm32-ecu/Drivers/STM32MP1xx_HAL_Driver/Inc"
-    "/home/jordan/Documents/2021/stm32-ecu/CM4/ecu-dev/src/libs"
-    "/home/jordan/Documents/2021/stm32-ecu/CM4/ecu-dev/src/shared"
-    "/home/jordan/Documents/2021/stm32-ecu/CM4/ecu-dev/src/sdk"
-    "/home/jordan/Documents/2021/stm32-ecu/CM4/ecu-dev/src/shared/include"
-    "/home/jordan/Documents/2021/stm32-ecu/CM4/ecu-dev/src/sdk/include"
+    "${CMAKE_CURRENT_LIST_DIR}/Core"
+    "${CMAKE_CURRENT_LIST_DIR}/Core/Inc"
+    "${CMAKE_CURRENT_LIST_DIR}/Drivers/BSP/STM32MP15xx_DISCO"
+    "${CMAKE_CURRENT_LIST_DIR}/OPENAMP"
+    "${CMAKE_CURRENT_LIST_DIR}/ecu-dev/src/libs"
+    "${CMAKE_CURRENT_LIST_DIR}/ecu-dev/src/shared"
+    "${CMAKE_CURRENT_LIST_DIR}/ecu-dev/src/shared/include"
+    "${CMAKE_CURRENT_LIST_DIR}/ecu-dev/src/sdk"
+    "${CMAKE_CURRENT_LIST_DIR}/ecu-dev/src/sdk/include"
+    "${CMAKE_CURRENT_LIST_DIR}/../Drivers/CMSIS/Device/ST/STM32MP1xx/Include"
+    "${CMAKE_CURRENT_LIST_DIR}/../Drivers/CMSIS/Include"
+    "${CMAKE_CURRENT_LIST_DIR}/../Drivers/STM32MP1xx_HAL_Driver/Inc"
+    "${CMAKE_CURRENT_LIST_DIR}/../Drivers/STM32MP1xx_HAL_Driver/Inc/Legacy"
+    "${CMAKE_CURRENT_LIST_DIR}/../Middlewares/Third_Party/FreeRTOS/Source/include"
+    "${CMAKE_CURRENT_LIST_DIR}/../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"
+    "${CMAKE_CURRENT_LIST_DIR}/../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"
+    "${CMAKE_CURRENT_LIST_DIR}/../Middlewares/Third_Party/OpenAMP/open-amp/lib/include"
+    "${CMAKE_CURRENT_LIST_DIR}/../Middlewares/Third_Party/OpenAMP/libmetal/lib/include"
+    "${CMAKE_CURRENT_LIST_DIR}/../Middlewares/Third_Party/OpenAMP/virtual_driver"
 )
 
 
@@ -122,7 +119,7 @@ file(GLOB_RECURSE OPENAMP_SRC
     OPENAMP/*.s
 )
 
-set(STMPROJ_PREFIX "/home/jordan/Documents/2021/stm32-ecu")
+set(STMPROJ_PREFIX "${CMAKE_CURRENT_LIST_DIR}/..")
 
 file(GLOB_RECURSE COMMON_SRC
     ${STMPROJ_PREFIX}/Common/*.c

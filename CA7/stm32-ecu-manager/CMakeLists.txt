@@ -1,25 +1,3 @@
-# Copyright 2018 gRPC authors.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-# cmake "superbuild" file for C++ helloworld example.
-# This build file demonstrates how to build the helloworld project
-# and all its dependencies in a single cmake build (hence "superbuild")
-# that is easy to build and maintain.
-# cmake's ExternalProject_Add() is used to import all the sub-projects,
-# including the "helloworld" project itself.
-# See https://blog.kitware.com/cmake-superbuilds-git-submodules/
-
 cmake_minimum_required(VERSION 3.5.1)
 cmake_policy(SET CMP0077 NEW)
 
@@ -57,7 +35,7 @@ add_definitions("-DUSERSPACE_BUILD")
 
 include_directories(
     ${ECU_SHARED_INCLUDE}
-    "../linux-5.10.61/build/install_artifact/include"
+    "${CMAKE_BINARY_DIR}/install/include"
 )
 
 if(NOT TARGET ecu_shared)
@@ -165,7 +143,16 @@ if(STM32_ECU_MANAGER_BUILD_SERVER)
       protobuf::libprotobuf
   )
 
-  add_dependencies(stm32-ecu-manager kernel_install)
+  # Update userspace application
+  set(KERNEL_INSTALL_DIR ${CMAKE_BINARY_DIR}/install)
+
+  install(
+    TARGETS
+      stm32-ecu-manager
+    RUNTIME
+    DESTINATION
+      ${KERNEL_INSTALL_DIR}/home/root/
+  )
 
 endif()
 

@@ -11,6 +11,7 @@ endif()
 
 option(BUILD_KERNEL "Build kernel modules for the Cortex-A7 chip. Must have cross-compilation env active." OFF)
 
+set(STM32CUBEIDE_VERSION 1.11.0)
 
 ### Build settings
 
@@ -27,12 +28,15 @@ if (STM32_ECU_CROSS_COMPILING)
     set(STM32_ECU_MANAGER_BINARY_DIR "stm32-ecu-manager-server")
     set(STM32_ECU_MANAGER_BUILD_SERVER ON)
     set(STM32_ECU_MANAGER_BUILD_CLIENT OFF)
+    set(BUILD_SHARED_LIBS OFF)
 
 else()
     message(STATUS "x86 compiler detected, configuring build for host compilation")
     set(STM32_ECU_MANAGER_BINARY_DIR "stm32-ecu-manager-client")
     set(STM32_ECU_MANAGER_BUILD_SERVER OFF)
     set(STM32_ECU_MANAGER_BUILD_CLIENT ON)
+    set(BUILD_SHARED_LIBS ON)
+
 endif()
 
 # Set bin/lib output directories so we can access them easily
@@ -48,25 +52,29 @@ add_compile_definitions(STM32_BUILD)
 # Reusable ECU libraries
 add_subdirectory(CM4/ecu-dev)
 
+
 # Linux kernel modules, etc.
 if(BUILD_KERNEL)
     if(NOT STM32_ECU_CROSS_COMPILING)
         message(FATAL_ERROR "BUILD_KERNEL is ON, but not cross compiling!")
     endif()
-    endif()
-add_subdirectory(CA7)
+    add_subdirectory(CA7)
+endif()
+
 
 # ECU management client/server, runs in userspace, interfaces with custom kernel module
 add_subdirectory(CA7/stm32-ecu-manager ${CMAKE_CURRENT_BINARY_DIR}/${STM32_ECU_MANAGER_BINARY_DIR})
 
+
 # Set up STM32CubeIDE workspace before Cortex-M4 firmware build
-set(STM32CUBEIDE /opt/st/stm32cubeide_1.9.0/headless-build.sh)
+set(STM32CUBEIDE /opt/st/stm32cubeide_${STM32CUBEIDE_VERSION}/headless-build.sh)
 add_custom_command(
     OUTPUT
         ${CMAKE_CURRENT_BINARY_DIR}/workspace/
     COMMAND
         ${STM32CUBEIDE} -data ${CMAKE_CURRENT_BINARY_DIR}/workspace/ -import ${CMAKE_CURRENT_SOURCE_DIR}/CM4/
 )
+
 
 # Build Cortex-M4 firmware
 add_custom_target(CM4_${CM4_CONFIG} ALL
@@ -78,4 +86,13 @@ add_custom_target(CM4_${CM4_CONFIG} ALL
         ${CMAKE_CURRENT_SOURCE_DIR}/CM4/${CM4_CONFIG}/stm32-ecu_CM4.elf
     DEPENDS
         ${CMAKE_CURRENT_BINARY_DIR}/workspace/
+)
+
+
+# Update CM4 firmware
+install(
+    FILES
+        ${CMAKE_CURRENT_LIST_DIR}/CM4/ProdDebug/stm32-ecu_CM4.elf
+    DESTINATION
+        ${CMAKE_BINARY_DIR}/install/home/root/
 )
