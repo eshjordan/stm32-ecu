@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause) */
 /*
- * Copyright (C) STMicroelectronics 2022 - All Rights Reserved
+ * Copyright (C) STMicroelectronics 2023 - All Rights Reserved
  * Author: STM32CubeMX code generation for STMicroelectronics.
  */
 
@@ -22,7 +22,7 @@
 /* USER CODE END includes */
 
 / {
-	model = "STMicroelectronics STM32MP157D-DK1 STM32CubeMX board - openstlinux-5.10-dunfell-mp1-21-11-17";
+	model = "STMicroelectronics STM32MP157D-DK1 STM32CubeMX board - openstlinux-5.15-yocto-kirkstone-mp1-v22.11.23";
 	compatible = "st,stm32mp157d-stm32-ecu-mx", "st,stm32mp157";
 
 	memory@c0000000 {
@@ -138,32 +138,14 @@
 	/* USER CODE END root */
 
 	clocks {
+
 		/* USER CODE BEGIN clocks */
 		/* USER CODE END clocks */
-
-#ifndef CONFIG_TFABOOT
-		clk_lsi: clk-lsi {
-			clock-frequency = <32000>;
-		};
-		clk_hsi: clk-hsi {
-			clock-frequency = <64000000>;
-		};
-		clk_csi: clk-csi {
-			clock-frequency = <4000000>;
-		};
-		clk_lse: clk-lse {
-			clock-frequency = <32768>;
-		};
-		clk_hse: clk-hse {
-			clock-frequency = <24000000>;
-		};
-#endif	/*CONFIG_TFABOOT*/
 	};
 
 }; /*root*/
 
 &pinctrl {
-	u-boot,dm-pre-reloc;
 
 	adc_pins_mx: adc_mx-0 {
 		pins {
@@ -390,9 +372,7 @@
 	};
 
 	sdmmc1_pins_mx: sdmmc1_mx-0 {
-		u-boot,dm-pre-reloc;
 		pins1 {
-			u-boot,dm-pre-reloc;
 			pinmux = <STM32_PINMUX('C', 8, AF12)>, /* SDMMC1_D0 */
 					 <STM32_PINMUX('C', 9, AF12)>, /* SDMMC1_D1 */
 					 <STM32_PINMUX('C', 10, AF12)>, /* SDMMC1_D2 */
@@ -403,7 +383,6 @@
 			slew-rate = <1>;
 		};
 		pins2 {
-			u-boot,dm-pre-reloc;
 			pinmux = <STM32_PINMUX('C', 12, AF12)>; /* SDMMC1_CK */
 			bias-disable;
 			drive-push-pull;
@@ -412,9 +391,7 @@
 	};
 
 	sdmmc1_opendrain_pins_mx: sdmmc1_opendrain_mx-0 {
-		u-boot,dm-pre-reloc;
 		pins1 {
-			u-boot,dm-pre-reloc;
 			pinmux = <STM32_PINMUX('C', 8, AF12)>, /* SDMMC1_D0 */
 					 <STM32_PINMUX('C', 9, AF12)>, /* SDMMC1_D1 */
 					 <STM32_PINMUX('C', 10, AF12)>, /* SDMMC1_D2 */
@@ -424,14 +401,12 @@
 			slew-rate = <1>;
 		};
 		pins2 {
-			u-boot,dm-pre-reloc;
 			pinmux = <STM32_PINMUX('C', 12, AF12)>; /* SDMMC1_CK */
 			bias-disable;
 			drive-push-pull;
 			slew-rate = <2>;
 		};
 		pins3 {
-			u-boot,dm-pre-reloc;
 			pinmux = <STM32_PINMUX('D', 2, AF12)>; /* SDMMC1_CMD */
 			bias-disable;
 			drive-open-drain;
@@ -440,9 +415,7 @@
 	};
 
 	sdmmc1_sleep_pins_mx: sdmmc1_sleep_mx-0 {
-		u-boot,dm-pre-reloc;
 		pins {
-			u-boot,dm-pre-reloc;
 			pinmux = <STM32_PINMUX('C', 8, ANALOG)>, /* SDMMC1_D0 */
 					 <STM32_PINMUX('C', 9, ANALOG)>, /* SDMMC1_D1 */
 					 <STM32_PINMUX('C', 10, ANALOG)>, /* SDMMC1_D2 */
@@ -457,12 +430,9 @@
 };
 
 &pinctrl_z {
-	u-boot,dm-pre-reloc;
 
 	i2c4_pins_z_mx: i2c4_mx-0 {
-		u-boot,dm-pre-reloc;
 		pins {
-			u-boot,dm-pre-reloc;
 			pinmux = <STM32_PINMUX('Z', 4, AF6)>, /* I2C4_SCL */
 					 <STM32_PINMUX('Z', 5, AF6)>; /* I2C4_SDA */
 			bias-disable;
@@ -472,9 +442,7 @@
 	};
 
 	i2c4_sleep_pins_z_mx: i2c4_sleep_mx-0 {
-		u-boot,dm-pre-reloc;
 		pins {
-			u-boot,dm-pre-reloc;
 			pinmux = <STM32_PINMUX('Z', 4, ANALOG)>, /* I2C4_SCL */
 					 <STM32_PINMUX('Z', 5, ANALOG)>; /* I2C4_SDA */
 		};
@@ -622,7 +590,6 @@
 };
 
 &hash1{
-	u-boot,dm-pre-reloc;
 	status = "okay";
 
 	/* USER CODE BEGIN hash1 */
@@ -637,7 +604,6 @@
 };
 
 &i2c4{
-	u-boot,dm-pre-reloc;
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&i2c4_pins_z_mx>;
 	pinctrl-1 = <&i2c4_sleep_pins_z_mx>;
@@ -829,7 +795,6 @@
 };
 
 &iwdg2{
-	u-boot,dm-pre-reloc;
 	status = "okay";
 
 	/* USER CODE BEGIN iwdg2 */
@@ -938,7 +903,6 @@
 };
 
 &rcc{
-	u-boot,dm-pre-reloc;
 	status = "okay";
 
 	/* USER CODE BEGIN rcc */
@@ -1014,7 +978,6 @@
 };
 
 &sdmmc1{
-	u-boot,dm-pre-reloc;
 	pinctrl-names = "default", "opendrain", "sleep";
 	pinctrl-0 = <&sdmmc1_pins_mx>;
 	pinctrl-1 = <&sdmmc1_opendrain_pins_mx>;
@@ -1053,7 +1016,6 @@
 };
 
 &usbotg_hs{
-	u-boot,dm-pre-reloc;
 	status = "okay";
 
 	/* USER CODE BEGIN usbotg_hs */
@@ -1071,7 +1033,6 @@
 };
 
 &usbphyc{
-	u-boot,dm-pre-reloc;
 	status = "okay";
 
 	/* USER CODE BEGIN usbphyc */
@@ -1079,7 +1040,6 @@
 };
 
 &usbphyc_port0{
-	u-boot,dm-pre-reloc;
 	status = "okay";
 
 	/* USER CODE BEGIN usbphyc_port0 */
@@ -1089,7 +1049,6 @@
 };
 
 &usbphyc_port1{
-	u-boot,dm-pre-reloc;
 	status = "okay";
 
 	/* USER CODE BEGIN usbphyc_port1 */

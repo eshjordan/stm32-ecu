@@ -11,7 +11,7 @@ endif()
 
 option(BUILD_KERNEL "Build kernel modules for the Cortex-A7 chip. Must have cross-compilation env active." OFF)
 
-set(STM32CUBEIDE_VERSION 1.11.0)
+set(STM32CUBEIDE_VERSION 1.11.2)
 
 ### Build settings
 

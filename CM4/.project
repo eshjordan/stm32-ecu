@@ -284,7 +284,7 @@
 		<link>
 			<name>Middlewares/Third_Party/OpenAMP/sys.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/OpenAMP/libmetal/lib/system/freertos/cortexm/sys.c</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/Third_Party/OpenAMP/libmetal/lib/system/freertos/template/sys.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/Third_Party/OpenAMP/time.c</name>

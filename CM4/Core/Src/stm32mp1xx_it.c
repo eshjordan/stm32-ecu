@@ -57,8 +57,8 @@
 
 /* External variables --------------------------------------------------------*/
 extern IPCC_HandleTypeDef hipcc;
-extern DMA_HandleTypeDef hdma_spi5_rx;
 extern DMA_HandleTypeDef hdma_spi5_tx;
+extern DMA_HandleTypeDef hdma_spi5_rx;
 extern SPI_HandleTypeDef hspi5;
 extern TIM_HandleTypeDef htim1;
 

@@ -48,7 +48,7 @@ typedef StaticSemaphore_t osStaticMutexDef_t;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
- CRC_HandleTypeDef hcrc2;
+CRC_HandleTypeDef hcrc2;
 
 FDCAN_HandleTypeDef hfdcan1;
 
@@ -60,8 +60,8 @@ RNG_HandleTypeDef hrng2;
 
 SPI_HandleTypeDef hspi4;
 SPI_HandleTypeDef hspi5;
-DMA_HandleTypeDef hdma_spi5_rx;
 DMA_HandleTypeDef hdma_spi5_tx;
+DMA_HandleTypeDef hdma_spi5_rx;
 
 UART_HandleTypeDef huart4;
 
@@ -121,8 +121,8 @@ const osMutexAttr_t esp32DataMutex_attributes = {
 void SystemClock_Config(void);
 void PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_IPCC_Init(void);
 static void MX_DMA_Init(void);
+static void MX_IPCC_Init(void);
 static void MX_SPI5_Init(void);
 static void MX_RNG2_Init(void);
 static void MX_I2C1_Init(void);
@@ -178,7 +178,7 @@ int main(void)
   else
   {
     /* IPCC initialisation */
-     MX_IPCC_Init();
+    MX_IPCC_Init();
     /* OpenAmp initialisation ---------------------------------*/
     MX_OPENAMP_Init(RPMSG_REMOTE, NULL);
   }
@@ -295,11 +295,9 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS_DIG;
   RCC_OscInitStruct.LSEState = RCC_LSE_ON;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = 16;
   RCC_OscInitStruct.HSIDivValue = RCC_HSI_DIV1;
   RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.CSIState = RCC_CSI_ON;
-  RCC_OscInitStruct.CSICalibrationValue = 16;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   RCC_OscInitStruct.PLL2.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL2.PLLSource = RCC_PLL12SOURCE_HSE;
@@ -431,7 +429,7 @@ static void MX_FDCAN1_Init(void)
   hfdcan1.Init.AutoRetransmission = DISABLE;
   hfdcan1.Init.TransmitPause = DISABLE;
   hfdcan1.Init.ProtocolException = DISABLE;
-  hfdcan1.Init.NominalPrescaler = 1;
+  hfdcan1.Init.NominalPrescaler = 16;
   hfdcan1.Init.NominalSyncJumpWidth = 1;
   hfdcan1.Init.NominalTimeSeg1 = 2;
   hfdcan1.Init.NominalTimeSeg2 = 2;

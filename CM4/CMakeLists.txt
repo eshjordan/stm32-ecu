@@ -160,7 +160,7 @@ add_library(${PROJECT_NAME}_obj OBJECT
 )
 
 
-set(COMPILE_OPTS "SHELL:-c -mcpu=cortex-m4 -mlittle-endian -fsso-struct=little-endian -std=c99 -std=c++11 -g3 -DDEBUG -DCORE_CM4 -DUSE_HAL_DRIVER -DSTM32MP157Dxx -DSTM32_BUILD -DNO_ATOMIC_64_SUPPORT -DMETAL_INTERNAL -DMETAL_MAX_DEVICE_REGIONS=2 -DVIRTIO_SLAVE_ONLY -DMETAL_FREERTOS -DUSERSPACE_BUILD -O0 -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fno-use-cxa-atexit -Wall -fstack-usage -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb")
+set(COMPILE_OPTS "SHELL:-c -mcpu=cortex-m4 -mlittle-endian -fsso-struct=little-endian -std=c99 -std=c++14 -g3 -DDEBUG -DCORE_CM4 -DUSE_HAL_DRIVER -DSTM32MP157Dxx -DSTM32_BUILD -DNO_ATOMIC_64_SUPPORT -DMETAL_INTERNAL -DMETAL_MAX_DEVICE_REGIONS=2 -DVIRTIO_SLAVE_ONLY -DMETAL_FREERTOS -DUSERSPACE_BUILD -O0 -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fno-use-cxa-atexit -Wall -fstack-usage -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb")
 set(STARTUP_COMPILE_OPTS "${COMPILE_OPTS} -x assembler-with-cpp -MMD -MP")
 
 target_compile_options(${PROJECT_NAME}_obj PUBLIC

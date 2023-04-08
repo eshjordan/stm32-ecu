@@ -19,9 +19,10 @@ if os.path.isfile(target_ccjson_path):
 file_paths = {}
 file_paths['compile_commands.json'] = [
     f"{root_dir}/CA7/linux-5.10.61",
-    f"{root_dir}/CM4",
+    f"{root_dir}/build",
     f"{root_dir}/build/client",
     f"{root_dir}/build/server"
+    # f"{root_dir}/CM4",
 ]
 
 # for each file in the dictionary, concatenate
