@@ -17,6 +17,10 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/kdev_t.h>
+#include <linux/wait.h>
+#include <linux/poll.h>
+#include <linux/vmalloc.h>
+#include <linux/kfifo.h>
 #include <linux/stm32ecu/stm32ecu.h>
 #include <linux/stm32ecu/shared/CRC.h>
 #include <linux/stm32ecu/shared/Interproc_Msg.h>
@@ -28,7 +32,27 @@ static dev_t dev = 0;
 static struct device *my_device;
 static struct cdev cdev;
 
+// Waitqueue
+DECLARE_WAIT_QUEUE_HEAD(wait_queue_poll_data);
+
+enum sent_msg_t {
+	SENT_MSG_INTERNAL = 0,
+	SENT_MSG_EXTERNAL_UNIQUE = 1,
+	SENT_MSG_EXTERNAL_FIFO = 2,
+};
+
+// Used to track whether the msg was sent internally, or externally using write() or ioctl()
+DEFINE_KFIFO(fifo_send_types, u8, 512);
+
+// Used to store response msgs, when the tx used write()
+DEFINE_KFIFO(fifo_external_msg, Interproc_Msg_t, 256);
+
+// Used to store response msgs, when the tx used ioctl(fd, STM32ECU_SEND_MSG, msg)
+DEFINE_KFIFO(fifo_unique_ids, u32, 256);
+DEFINE_XARRAY_ALLOC1(rx_unique_buffer);
+
 static int32_t value = 0;
+static int device_open = 0;
 
 static struct rpmsg_device *global_rproc_ref = NULL;
 
@@ -40,6 +64,8 @@ static ssize_t ioctl_write(struct file *filp, const char *buf, size_t len,
 			   loff_t *off);
 static long ioctl_call(struct file *file, unsigned int cmd, unsigned long arg);
 
+static unsigned int poll_cb(struct file *filp, struct poll_table_struct *wait);
+
 static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = ioctl_read,
@@ -47,10 +73,15 @@ static struct file_operations fops = {
 	.open = ioctl_open,
 	.unlocked_ioctl = ioctl_call,
 	.release = ioctl_release,
+	.poll = poll_cb,
 };
 
 static int ioctl_open(struct inode *inode, struct file *file)
 {
+	if (device_open)
+		return -EBUSY;
+
+	device_open++;
 	printk(KERN_WARNING "Device File Opened...!!!\n");
 	return 0;
 }
@@ -60,9 +91,11 @@ static int ioctl_open(struct inode *inode, struct file *file)
 */
 static int ioctl_release(struct inode *inode, struct file *file)
 {
+	device_open--;
 	printk(KERN_WARNING "Device File Closed...!!!\n");
 	return 0;
 }
+
 /*
 ** This function will be called when we read the Device file
 */
@@ -70,8 +103,26 @@ static ssize_t ioctl_read(struct file *filp, char __user *buf, size_t len,
 			  loff_t *off)
 {
 	printk(KERN_WARNING "Read Function\n");
-	return 0;
+
+	size_t num_msgs = len / sizeof(Interproc_Msg_t);
+	size_t expected_len = sizeof(Interproc_Msg_t) * num_msgs;
+	if (len != expected_len) {
+		printk(KERN_ERR
+		       "Data Write : Err, buffer length is not a multiple of sizeof(Interproc_Msg_t)!\n");
+		return 0;
+	}
+
+	ssize_t bytes_read = 0;
+	Interproc_Msg_t *out_msg;
+	for (out_msg = (Interproc_Msg_t *)buf;
+	     out_msg < (Interproc_Msg_t *)buf + num_msgs; out_msg++) {
+		kfifo_get(&fifo_external_msg, out_msg);
+		bytes_read += sizeof(Interproc_Msg_t);
+	}
+
+	return bytes_read;
 }
+
 /*
 ** This function will be called when we write the Device file
 */
@@ -79,7 +130,49 @@ static ssize_t ioctl_write(struct file *filp, const char __user *buf,
 			   size_t len, loff_t *off)
 {
 	printk(KERN_WARNING "Write function\n");
-	return len;
+	kfifo_put(&fifo_send_types, SENT_MSG_EXTERNAL_FIFO);
+
+	size_t num_msgs = len / sizeof(Interproc_Msg_t);
+	size_t expected_len = sizeof(Interproc_Msg_t) * num_msgs;
+	if (len != expected_len) {
+		printk(KERN_ERR
+		       "Data Write : Err, buffer length is not a multiple of sizeof(Interproc_Msg_t)!\n");
+		return 0;
+	}
+
+	Interproc_Msg_t *msg_list = (Interproc_Msg_t *)vmalloc(len);
+	if (copy_from_user(msg_list, buf, len)) {
+		printk(KERN_ERR "Data Write : Err!\n");
+		return 0;
+	}
+
+	Interproc_Msg_t *msg;
+	for (msg = msg_list; msg < msg_list + num_msgs; msg++) {
+		if (msg->checksum !=
+		    calc_crc(msg, offsetof(Interproc_Msg_t, checksum))) {
+			printk(KERN_ERR
+			       "Interproc_Msg_t at idx %d has invalid CRC!\n",
+			       msg - msg_list);
+			return 0;
+		}
+	}
+
+	ssize_t bytes_written = 0;
+	for (msg = msg_list; msg < msg_list + num_msgs; msg++) {
+		int ret = rpmsg_send(global_rproc_ref->ept, msg,
+				     sizeof(Interproc_Msg_t));
+		if (ret) {
+			dev_err(&global_rproc_ref->dev,
+				"rpmsg_send of msg at idx %d failed: %d\n",
+				msg - msg_list, ret);
+			return bytes_written;
+		}
+
+		bytes_written += sizeof(Interproc_Msg_t);
+		kfifo_put(&fifo_send_types, SENT_MSG_EXTERNAL_FIFO);
+	}
+
+	return bytes_written;
 }
 /*
 ** This function will be called when we write IOCTL on the Device file
@@ -96,6 +189,7 @@ static long ioctl_call(struct file *file, unsigned int cmd, unsigned long arg)
 	case STM32ECU_SET_STATE: {
 		if (copy_from_user(&value, (int32_t *)arg, sizeof(value))) {
 			printk(KERN_ERR "Data Write : Err!\n");
+			return -EINVAL;
 		}
 		printk(KERN_WARNING "Value = %d\n", value);
 		break;
@@ -103,6 +197,7 @@ static long ioctl_call(struct file *file, unsigned int cmd, unsigned long arg)
 	case STM32ECU_GET_STATE: {
 		if (copy_to_user((int32_t *)arg, &value, sizeof(value))) {
 			printk(KERN_ERR "Data Read : Err!\n");
+			return -EINVAL;
 		}
 		break;
 	}
@@ -127,6 +222,10 @@ static long ioctl_call(struct file *file, unsigned int cmd, unsigned long arg)
 			return ret;
 		}
 
+		if (!kfifo_put(&fifo_send_types, SENT_MSG_INTERNAL)) {
+			return -EINVAL;
+		}
+
 		break;
 	}
 	case STM32ECU_SEND_MSG: {
@@ -134,6 +233,7 @@ static long ioctl_call(struct file *file, unsigned int cmd, unsigned long arg)
 		if (copy_from_user(&msg, (Interproc_Msg_t *)arg,
 				   sizeof(Interproc_Msg_t))) {
 			printk(KERN_ERR "Data Write Msg : Err!\n");
+			return -EINVAL;
 		}
 
 		int ret = rpmsg_send(global_rproc_ref->ept, &msg,
@@ -144,7 +244,56 @@ static long ioctl_call(struct file *file, unsigned int cmd, unsigned long arg)
 			return ret;
 		}
 
-		break;
+		if (!kfifo_put(&fifo_send_types, SENT_MSG_EXTERNAL_UNIQUE)) {
+			return -EINVAL;
+		}
+
+		// Give a UID to userspace so we can give them their msg once it's received
+		u32 id;
+		static u32 next = 1;
+		if (xa_alloc_cyclic(&rx_unique_buffer, &id, NULL,
+				    XA_LIMIT(1, 1024), &next, GFP_KERNEL) < 0) {
+			return -EINVAL;
+		}
+
+		// Store our idx for this message, so we know where to place it when it's received
+		if (!kfifo_put(&fifo_unique_ids, id)) {
+			return -EINVAL;
+		}
+
+		if (copy_to_user((u32 *)arg, &id, sizeof(u32))) {
+			printk(KERN_ERR "Data Write Msg : Err!\n");
+			return -EINVAL;
+		}
+
+		return 0;
+	}
+	case STM32ECU_RECV_MSG: {
+		u32 id;
+		if (copy_from_user(&id, (u32 *)arg, sizeof(u32))) {
+			printk(KERN_ERR "Data Write Msg : Err!\n");
+		}
+
+		// xa_reserve
+		// xa_release
+		// xa_alloc
+		// xa_store
+		// xas_load
+		// xa_erase
+
+		if (NULL == xa_load(&rx_unique_buffer, id)) {
+			return -EAGAIN;
+		}
+
+		Interproc_Msg_t *msg =
+			(Interproc_Msg_t *)xa_erase(&rx_unique_buffer, id);
+
+		if (copy_to_user((Interproc_Msg_t *)arg, msg,
+				 sizeof(Interproc_Msg_t))) {
+			printk(KERN_ERR "Data Write Msg : Err!\n");
+		}
+
+		return 0;
 	}
 	default: {
 		printk(KERN_WARNING "Default\n");
@@ -152,6 +301,21 @@ static long ioctl_call(struct file *file, unsigned int cmd, unsigned long arg)
 	}
 	}
 	return 0;
+}
+
+static unsigned int poll_cb(struct file *filp, struct poll_table_struct *wait)
+{
+	__poll_t mask = (POLLOUT | POLLWRNORM);
+
+	poll_wait(filp, &wait_queue_poll_data, wait);
+	pr_info("Poll function\n");
+
+	/* Do your Operation */
+	if (!kfifo_is_empty(&fifo_external_msg)) {
+		mask |= (POLLIN | POLLRDNORM);
+	}
+
+	return mask;
 }
 
 static int count = 100;
@@ -174,10 +338,42 @@ static int rpmsg_sample_cb(struct rpmsg_device *rpdev, void *data, int len,
 
 		CRC crc = calc_crc(msg, offsetof(Interproc_Msg_t, checksum));
 
+		u8 sent_type;
+		if (!kfifo_get(&fifo_send_types, &sent_type)) {
+			return -EINVAL;
+		}
+
 		if (crc == msg->checksum) {
 			printk(KERN_WARNING "CRC OK\n");
 			printk(KERN_WARNING "msg->command = %u\n",
 			       msg->command);
+
+			switch (sent_type) {
+			case SENT_MSG_EXTERNAL_FIFO: {
+				// Store the message in a buffer, ready to give to userspace
+				if (!kfifo_put(&fifo_external_msg, *msg)) {
+					return -EINVAL;
+				}
+				break;
+			}
+			case SENT_MSG_EXTERNAL_UNIQUE: {
+				u32 id;
+				kfifo_get(&fifo_unique_ids, &id);
+				Interproc_Msg_t *ptr =
+					vmalloc(sizeof(Interproc_Msg_t));
+				*ptr = *msg;
+				if (xa_is_err(xa_store(&rx_unique_buffer, id,
+						       ptr, GFP_KERNEL))) {
+					return -EINVAL;
+				}
+				break;
+			}
+			case SENT_MSG_INTERNAL:
+			default: {
+				// Sent as part of a ping request or something, don't do anything
+				break;
+			}
+			}
 		} else {
 			printk(KERN_WARNING
 			       "CRC ERR - CALC (%u) != RECV (%u)\n",
@@ -287,6 +483,18 @@ r_class:
 static void __exit stm32ecu_exit(void)
 {
 	printk(KERN_ALERT "JORDAN IS EXITING STM32ECU\n");
+
+	unsigned long i = 0;
+	Interproc_Msg_t *entry;
+	xa_for_each (&rx_unique_buffer, i, entry) {
+		vfree(entry);
+	}
+
+	xa_destroy(&rx_unique_buffer);
+
+	kfifo_free(&fifo_send_types);
+	kfifo_free(&fifo_external_msg);
+	kfifo_free(&fifo_unique_ids);
 
 	device_destroy(dev_class, dev);
 	class_destroy(dev_class);

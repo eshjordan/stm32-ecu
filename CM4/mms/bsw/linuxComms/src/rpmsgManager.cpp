@@ -1,5 +1,7 @@
 
 #include "rpmsgManager.hpp"
+#include "System.hpp"
+#include "string.h"
 
 #define SHUTDOWN_CHANNEL "shutdown"
 #define STM32ECU_CHANNEL "stm32ecu"
@@ -29,6 +31,50 @@ int RpmsgManager::stm32ecu_recv_cb(struct rpmsg_endpoint *ept, void *data,
     }
 
     case PARAM_GET_CMD: {
+      auto param_type = *(System::Impl::ParameterType*)interproc_msg.data;
+      char param_name[12] = {0};
+      strncpy(param_name, (const char*)interproc_msg.data+1, 10);
+      switch(param_type)
+      {
+        case System::Impl::ParameterType::PARAMETER_BOOL: {
+          bool param_value = System::get_parameter_value<bool>(param_name);
+          Interproc_Msg_t reply = {.command = ACK_CMD};
+          *(bool*)reply.data = param_value;
+          interproc_msg_calc_checksum(&reply);
+          OPENAMP_send(ept, &reply, sizeof(reply));
+        }
+        case System::Impl::ParameterType::PARAMETER_INTEGER: {
+          int64_t param_value = System::get_parameter_value<int64_t>(param_name);
+          Interproc_Msg_t reply = {.command = ACK_CMD};
+          *(int64_t*)reply.data = param_value;
+          interproc_msg_calc_checksum(&reply);
+          OPENAMP_send(ept, &reply, sizeof(reply));
+        }
+        case System::Impl::ParameterType::PARAMETER_DOUBLE: {
+          double param_value = System::get_parameter_value<double>(param_name);
+          Interproc_Msg_t reply = {.command = ACK_CMD};
+          *(double*)reply.data = param_value;
+          interproc_msg_calc_checksum(&reply);
+          OPENAMP_send(ept, &reply, sizeof(reply));
+        }
+        case System::Impl::ParameterType::PARAMETER_STRING: {
+          const char* param_value = System::get_parameter_value<System::Impl::ParameterType::PARAMETER_STRING>(param_name);
+          Interproc_Msg_t reply = {.command = ACK_CMD};
+          strncpy((char*)reply.data, param_value, 11);
+          interproc_msg_calc_checksum(&reply);
+          OPENAMP_send(ept, &reply, sizeof(reply));
+        }
+        case System::Impl::ParameterType::PARAMETER_BYTE_ARRAY: {
+          const uint8_t *param_value = System::get_parameter_value<const uint8_t*>(param_name);
+          Interproc_Msg_t reply = {.command = ACK_CMD};
+          memcpy(reply.data, param_value, 11);
+          interproc_msg_calc_checksum(&reply);
+          OPENAMP_send(ept, &reply, sizeof(reply));
+        }
+        case System::Impl::ParameterType::PARAMETER_NOT_SET:
+        default:
+        {}
+      }
       break;
     }
 

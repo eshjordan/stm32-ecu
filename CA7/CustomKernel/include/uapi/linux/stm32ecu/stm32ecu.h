@@ -6,4 +6,5 @@
 #define STM32ECU_GET_STATE _IOR('k', 2, int32_t *)
 #define STM32ECU_SET_STATE _IOW('k', 3, int32_t *)
 #define STM32ECU_PING_RPROC _IO('k', 4)
-#define STM32ECU_SEND_MSG _IOW('k', 5, Interproc_Msg_t *)
+#define STM32ECU_SEND_MSG _IOWR('k', 5, Interproc_Msg_t *)
+#define STM32ECU_RECV_MSG _IOWR('k', 6, Interproc_Msg_t *)

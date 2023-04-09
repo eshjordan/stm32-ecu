@@ -18,7 +18,7 @@ static int fd = -1;
 class RouteGuideImpl final : public ecu_grpc::EcuService::Service {
 	::grpc::Status reset(::grpc::ServerContext *context,
 			     const ::ecu_grpc::Empty *request,
-			     ::ecu_grpc::State *response) override
+			     ::ecu_grpc::Empty *response) override
 	{
 		int status = ioctl(fd, STM32ECU_RESET);
 		if (status == -1) {
@@ -32,7 +32,7 @@ class RouteGuideImpl final : public ecu_grpc::EcuService::Service {
 
 	::grpc::Status offline(::grpc::ServerContext *context,
 			       const ::ecu_grpc::Empty *request,
-			       ::ecu_grpc::State *response) override
+			       ::ecu_grpc::Empty *response) override
 	{
 		int status = ioctl(fd, STM32ECU_OFFLINE);
 		if (status == -1) {
@@ -62,7 +62,7 @@ class RouteGuideImpl final : public ecu_grpc::EcuService::Service {
 
 	::grpc::Status setState(::grpc::ServerContext *context,
 				const ::ecu_grpc::State *request,
-				::ecu_grpc::State *response) override
+				::ecu_grpc::Empty *response) override
 	{
 		static const char usr_msg[] =
 			"ioctl message, hey from user space!";
@@ -79,7 +79,7 @@ class RouteGuideImpl final : public ecu_grpc::EcuService::Service {
 
 	::grpc::Status ping(::grpc::ServerContext *context,
 			    const ::ecu_grpc::Empty *request,
-			    ::ecu_grpc::State *response) override
+			    ::ecu_grpc::Empty *response) override
 	{
 		int status = ioctl(fd, STM32ECU_PING_RPROC);
 		if (status == -1) {
@@ -93,7 +93,7 @@ class RouteGuideImpl final : public ecu_grpc::EcuService::Service {
 
 	::grpc::Status sendMsg(::grpc::ServerContext *context,
 			       const ::ecu_grpc::InterprocMsg *request,
-			       ::ecu_grpc::State *response) override
+			       ::ecu_grpc::InterprocMsg *response) override
 	{
 		Interproc_Msg_t msg = interproc_msg_make(
 			Interproc_Command_t::RESET_CMD, nullptr);

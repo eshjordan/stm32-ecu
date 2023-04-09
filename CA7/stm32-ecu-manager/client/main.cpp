@@ -28,7 +28,7 @@ class HelloClient {
 	{
 		grpc::ClientContext context;
 		ecu_grpc::Empty request;
-		ecu_grpc::State reply;
+		ecu_grpc::Empty reply;
 
 		grpc::Status status = stub_->reset(&context, request, &reply);
 
@@ -44,7 +44,7 @@ class HelloClient {
 	{
 		grpc::ClientContext context;
 		ecu_grpc::Empty request;
-		ecu_grpc::State reply;
+		ecu_grpc::Empty reply;
 
 		grpc::Status status = stub_->offline(&context, request, &reply);
 		if (!status.ok()) {
@@ -71,7 +71,7 @@ class HelloClient {
 	{
 		grpc::ClientContext context;
 		ecu_grpc::State request;
-		ecu_grpc::State reply;
+		ecu_grpc::Empty reply;
 
 		grpc::Status status =
 			stub_->setState(&context, request, &reply);
@@ -85,7 +85,7 @@ class HelloClient {
 	{
 		grpc::ClientContext context;
 		ecu_grpc::Empty request;
-		ecu_grpc::State reply;
+		ecu_grpc::Empty reply;
 
 		grpc::Status status = stub_->ping(&context, request, &reply);
 		if (!status.ok()) {
@@ -98,7 +98,7 @@ class HelloClient {
 	{
 		grpc::ClientContext context;
 		ecu_grpc::InterprocMsg request;
-		ecu_grpc::State reply;
+		ecu_grpc::InterprocMsg reply;
 
 		grpc::Status status = stub_->sendMsg(&context, request, &reply);
 		if (!status.ok()) {

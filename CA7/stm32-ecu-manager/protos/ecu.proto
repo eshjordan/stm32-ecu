@@ -23,12 +23,12 @@ package ecu_grpc;
 
 // The greeting service definition.
 service EcuService {
-  rpc reset (Empty) returns (State) {}
-  rpc offline (Empty) returns (State) {}
+  rpc reset (Empty) returns (Empty) {}
+  rpc offline (Empty) returns (Empty) {}
   rpc getState (Empty) returns (State) {}
-  rpc setState (State) returns (State) {}
-  rpc ping (Empty) returns (State) {}
-  rpc sendMsg (InterprocMsg) returns (State) {}
+  rpc setState (State) returns (Empty) {}
+  rpc ping (Empty) returns (Empty) {}
+  rpc sendMsg (InterprocMsg) returns (InterprocMsg) {}
 }
 
 message Empty {
@@ -52,6 +52,7 @@ message InterprocMsg {
     VALUE_CMD = 9;
     PARAM_GET_CMD = 10;
     PARAM_SET_CMD = 11;
+    CHANNEL_GET_CMD = 12;
   }
 
   InterprocCommand command = 1;
