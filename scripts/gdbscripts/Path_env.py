@@ -4,14 +4,14 @@
 path_source_tf_a     = "/home/jordan/STM32MP15-Ecosystem-v3.1.0/Developer-Package/stm32mp1-openstlinux-5.10-dunfell-mp1-21-11-17/sources/arm-ostl-linux-gnueabi/tf-a-stm32mp-v2.4-stm32mp-r2-r0"
 path_source_op_tee   = "/home/jordan/STM32MP15-Ecosystem-v3.1.0/Developer-Package/stm32mp1-openstlinux-5.10-dunfell-mp1-21-11-17/sources/arm-ostl-linux-gnueabi/optee-os-stm32mp-3.12.0-stm32mp-r2-r0"
 path_source_u_boot   = "/home/jordan/STM32MP15-Ecosystem-v3.1.0/Developer-Package/stm32mp1-openstlinux-5.10-dunfell-mp1-21-11-17/sources/arm-ostl-linux-gnueabi/u-boot-stm32mp-v2020.10-stm32mp-r2-r0"
-path_source_linux    = "/home/jordan/Documents/2021/stm32-ecu/CA7/linux-5.10.61/linux-5.10.61"
+path_source_linux    = "/home/jordan/stm32-ecu/CA7/linux-5.10.61/linux-5.10.61"
 
 # absolute path of elf files
 path_elf_tf_a_bl2    = "/home/jordan/STM32MP15-Ecosystem-v3.1.0/Developer-Package/stm32mp1-openstlinux-5.10-dunfell-mp1-21-11-17/images/stm32mp1/arm-trusted-firmware/debug/tf-a-bl2-sdcard.elf"
 path_elf_tf_a_bl32   = "/home/jordan/STM32MP15-Ecosystem-v3.1.0/Developer-Package/stm32mp1-openstlinux-5.10-dunfell-mp1-21-11-17/images/stm32mp1/arm-trusted-firmware/bl32/debug/tf-a-bl32-stm32mp15.elf"
 path_elf_op_tee_bl32 = "/home/jordan/STM32MP15-Ecosystem-v3.1.0/Developer-Package/stm32mp1-openstlinux-5.10-dunfell-mp1-21-11-17/images/stm32mp1/optee/debug/tee-stm32mp157d-dk1.elf"
 path_elf_u_boot      = "/home/jordan/STM32MP15-Ecosystem-v3.1.0/Developer-Package/stm32mp1-openstlinux-5.10-dunfell-mp1-21-11-17/images/stm32mp1/u-boot/debug/u-boot-stm32mp15-trusted.elf"
-# path_elf_vmlinux     = "/home/jordan/Documents/2021/stm32-resources/Developer-Package/stm32mp1-openstlinux-5.10-dunfell-mp1-21-03-31/images/stm32mp1/kernel/vmlinux"
+# path_elf_vmlinux     = "/home/jordan/stm32-resources/Developer-Package/stm32mp1-openstlinux-5.10-dunfell-mp1-21-03-31/images/stm32mp1/kernel/vmlinux"
 path_elf_vmlinux     = "/home/jordan/stm32-ecu/CA7/linux-5.10.61/build/vmlinux"
 
 # absolute path of fip file

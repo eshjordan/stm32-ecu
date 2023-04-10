@@ -127,7 +127,7 @@ Setup an alias `get_stm` to source the cross-compilation environment:
  - Running `echo $CROSS_COMPILE` should return `arm-ostl-linux-gnueabi-`
  - Running `$CC --version` should return `arm-ostl-linux-gnueabi-gcc (GCC) 9.3.0`
  - Running `echo $OECORE_SDK_VERSION` should return `3.1.11-openstlinux-5.10-dunfell-mp1-21-11-17`
- 
+
 
 # Setup the Linux kernel
 Ensure you downloaded the STM32MP1 OpenSTLinux Developer Package (Source) from https://www.st.com earlier
@@ -232,3 +232,6 @@ VS Marketplace Link: https://marketplace.visualstudio.com/items?itemName=espress
 `echo "alias get_idf='. $HOME/esp/esp-idf/export.sh'" >> ~/.bashrc`
 
 `sudo cp ${HOME}/.espressif/tools/openocd-esp32/v0.11.0-esp32-20211220/openocd-esp32/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d`
+
+## Resources
+ - Workshop demonstrations, powerpoints, etc. - https://drive.google.com/drive/u/1/folders/1eHO37VljVpbTt-TBJFZ2-Yack5fZPj-v

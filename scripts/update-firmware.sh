@@ -35,18 +35,14 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 cmake -S ${WORKSPACE_DIR} -B ${WORKSPACE_DIR}/build/x86
 cmake --build ${WORKSPACE_DIR}/build/x86 -j
 
-popd
-
 
 # Source the SDK environment for cross-compilation
-unset LD_LIBRARY_PATH
-source ${HOME}/STM32MP15-Ecosystem-v3.1.0/Developer-Package/SDK/environment-setup-cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi
+SOURCE_STM='unset LD_LIBRARY_PATH && source ~/STM32MP15-Ecosystem-v3.1.0/Developer-Package/SDK/environment-setup-cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi'
 
 # Build project for ARM
-cmake -S ${WORKSPACE_DIR} -B ${WORKSPACE_DIR}/build/arm
-cmake --build ${WORKSPACE_DIR}/build/arm -j
+bash -c "${SOURCE_STM} && cmake -S ${WORKSPACE_DIR} -B ${WORKSPACE_DIR}/build/arm"
+bash -c "${SOURCE_STM} && cmake --build ${WORKSPACE_DIR}/build/arm -j"
 
-popd
 
 # # Write a toolchain file to use for cross-compiling.
 # echo "SET(CMAKE_SYSTEM_NAME Linux)" >/tmp/toolchain.cmake

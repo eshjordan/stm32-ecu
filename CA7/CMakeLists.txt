@@ -167,6 +167,9 @@ add_custom_target(kernel_install ALL
     COMMAND
         # Ignore source and build dirs when using rsync to copy files
         echo "${KERNEL_VERSION}/source ${KERNEL_VERSION}/build" >${KERNEL_INSTALL_DIR}/lib/modules/.cvsignore
+    COMMAND
+        # Ignore vmlinux
+        echo "vmlinux" >${KERNEL_INSTALL_DIR}/boot/.cvsignore
     DEPENDS
         kernel_build_modules
 )

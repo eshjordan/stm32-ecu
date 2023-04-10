@@ -15,7 +15,7 @@ INIT_MODULE(Accumulator)
 	System::add_channel<double>("velocity", 0.0f, ChannelLogRate::CHANNEL_LOG_100HZ);
 }
 
-REGISTER_ROUTINE(point_mass_model, 10, 256)
+REGISTER_ROUTINE(point_mass_model, 10, 1024)
 {
 	// read parameters by name
 	auto acc = System::get_parameter_value<double>("acceleration");

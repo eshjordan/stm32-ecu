@@ -194,7 +194,7 @@ source /home/jordan/stm32-ecu/CA7/linux-5.10.61/build/vmlinux-gdb.py
 cd /home/jordan/stm32-ecu/CA7/linux-5.10.61/build
 # b kernel/module.c:3901
 b load_module
-directory ../linux-5.10.61/drivers/stm32ecu/
+directory /home/jordan/stm32-ecu/CA7/linux-5.10.61/linux-5.10.61/drivers/stm32ecu/
 
 # continue
 # source /home/jordan/stm32-ecu/scripts/gdbscripts/moduleDbg.gdb

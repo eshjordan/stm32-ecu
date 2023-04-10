@@ -1,7 +1,6 @@
 #!/bin/bash
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-unset LD_LIBRARY_PATH
-source /opt/st/stm32mp1/3.1-openstlinux-5.10-dunfell-mp1-21-03-31/environment-setup-cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi
+SOURCE_STM='unset LD_LIBRARY_PATH && source ${HOME}/STM32MP15-Ecosystem-v3.1.0/Developer-Package/SDK/environment-setup-cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi'
 cd ${SCRIPT_DIR}/gdbscripts
-${GDB} -x CM4-Eng.gdb ${SCRIPT_DIR}/../CM4/EngDebug/stm32-ecu_CM4.elf
+bash -c "${SOURCE_STM} && \${GDB} -x CM4-Eng.gdb ${SCRIPT_DIR}/../build/bin/stm32-ecu_CM4.elf"
