@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include <linux/stm32ecu/shared/Interproc_Msg.h>
+#include <linux/stm32ecu/shared/Parameter.h>
 #include <linux/stm32ecu/stm32ecu.h>
 
 #include "ecu.grpc.pb.h"
@@ -95,15 +96,49 @@ class RouteGuideImpl final : public ecu_grpc::EcuService::Service {
 			       const ::ecu_grpc::InterprocMsg *request,
 			       ::ecu_grpc::InterprocMsg *response) override
 	{
-		Interproc_Msg_t msg = interproc_msg_make(
-			Interproc_Command_t::RESET_CMD, nullptr);
+		uint8_t data[16] = {0};
+		data[0] = Parameter_Type_t::PARAMETER_DOUBLE;
+		strncpy((char*)&data[1], "position", 9);
+		Interproc_Msg_t msg = interproc_msg_make(Interproc_Command_t::CMD_PARAM_GET, data, strlen("position")+1);
 		int status = ioctl(fd, STM32ECU_SEND_MSG, &msg);
-		if (status == -1) {
+		if (status == -EINVAL) {
 			printf("Couldn't ioctl MY_SEND_MSG_RPROC!\n");
 			close(fd);
 			return ::grpc::Status::CANCELLED;
+		} else if (status < 0) {
+			printf("Some other error, couldn't ioctl MY_SEND_MSG_RPROC!\n");
+			close(fd);
+			return ::grpc::Status::CANCELLED;
 		}
+
 		printf("MY_SEND_MSG_RPROC: OK!\n");
+
+		uint32_t response_id = *(uint32_t*)&msg;
+
+		uint8_t loop_count = 0;
+		while (-EAGAIN == (status = ioctl(fd, STM32ECU_RECV_MSG, &msg)) && loop_count++ < 10) {
+			sleep(1);
+		}
+
+		if (status == -EINVAL) {
+			printf("Couldn't ioctl MY_RECV_MSG_RPROC!\n");
+			close(fd);
+			return ::grpc::Status::CANCELLED;
+		} else if (status == -EAGAIN) {
+			printf("Couldn't ioctl MY_RECV_MSG_RPROC, timeout!\n");
+			close(fd);
+			return ::grpc::Status::CANCELLED;
+		} else if (status < 0) {
+			printf("Some other error, couldn't ioctl MY_RECV_MSG_RPROC!\n");
+			close(fd);
+			return ::grpc::Status::CANCELLED;
+		}
+
+		response->set_command((::ecu_grpc::InterprocMsg_InterprocCommand)msg.command);
+		response->set_data(msg.data, sizeof(msg.data));
+		response->set_checksum(msg.checksum);
+
+		printf("MY_RECV_MSG_RPROC: OK!\n");
 		return ::grpc::Status::OK;
 	}
 };
@@ -199,15 +234,91 @@ int main(int argc, char **argv)
 	}
 	printf("MY_PING_RPROC: OK!\n");
 
-	Interproc_Msg_t msg =
-		interproc_msg_make(Interproc_Command_t::RESET_CMD, nullptr);
-	status = ioctl(fd, STM32ECU_SEND_MSG, &msg);
-	if (status == -1) {
-		printf("Couldn't ioctl MY_SEND_MSG_RPROC!\n");
+
+	uint8_t data[16] = {0};
+	data[0] = Parameter_Type_t::PARAMETER_DOUBLE;
+	strncpy((char*)&data[1], "position", 9);
+
+	Interproc_Msg_t tx_msg = interproc_msg_make(Interproc_Command_t::CMD_PARAM_GET, data, strlen("position")+1);
+	auto bytes_written = write(fd, &tx_msg, sizeof(tx_msg));
+
+	if (bytes_written != sizeof(tx_msg)) {
+		printf("Couldn't write to '/dev/stm32ecu'!\n");
 		close(fd);
 		return 1;
 	}
-	printf("MY_SEND_MSG_RPROC: OK!\n");
+
+	printf("WRITE MESSAGE: OK!\n");
+
+	Interproc_Msg_t rx_msg = {0};
+	ssize_t bytes_read = 0;
+	uint8_t loop_count = 0;
+	while (0 == (bytes_read = read(fd, &rx_msg, sizeof(rx_msg))) && loop_count++ < 10) {
+		sleep(1);
+	}
+
+	if (bytes_read != sizeof(rx_msg)) {
+		printf("Couldn't read from '/dev/stm32ecu' (%d bytes) !\n", bytes_read);
+		close(fd);
+		return 1;
+	}
+
+	if (rx_msg.checksum != interproc_msg_calc_checksum(&rx_msg)) {
+		printf("rx_msg checksum mismatch!\n");
+		close(fd);
+		return 1;
+	}
+
+	if (rx_msg.command != Interproc_Command_t::CMD_ACK) {
+		printf("Unexpected rx_msg type - %d\n", rx_msg.command);
+		close(fd);
+		return 1;
+	}
+
+	printf("rx_msg.data - position: %lf\n", *(double*)rx_msg.data);
+
+	printf("READ MESSAGE: OK!\n");
+
+
+	// uint8_t data[16] = {0};
+	// data[0] = Parameter_Type_t::PARAMETER_DOUBLE;
+	// strncpy((char*)&data[1], "position", 9);
+	// Interproc_Msg_t msg = interproc_msg_make(Interproc_Command_t::CMD_PARAM_GET, data, strlen("position")+1);
+	// status = ioctl(fd, STM32ECU_SEND_MSG, &msg);
+	// if (status == -EINVAL) {
+	// 	printf("Couldn't ioctl MY_SEND_MSG_RPROC!\n");
+	// 	close(fd);
+	// 	return 1;
+	// } else if (status < 0) {
+	// 	printf("Some other error, couldn't ioctl MY_SEND_MSG_RPROC!\n");
+	// 	close(fd);
+	// 	return 1;
+	// }
+
+	// printf("MY_SEND_MSG_RPROC: OK!\n");
+
+	// uint32_t response_id = *(uint32_t*)&msg;
+
+	// uint8_t loop_count = 0;
+	// while (-EAGAIN == (status = ioctl(fd, STM32ECU_RECV_MSG, &msg)) && loop_count++ < 10) {
+	// 	sleep(1);
+	// }
+
+	// if (status == -EINVAL) {
+	// 	printf("Couldn't ioctl MY_RECV_MSG_RPROC!\n");
+	// 	close(fd);
+	// 	return 1;
+	// } else if (status == -EAGAIN) {
+	// 	printf("Couldn't ioctl MY_RECV_MSG_RPROC, timeout!\n");
+	// 	close(fd);
+	// 	return 1;
+	// } else if (status < 0) {
+	// 	printf("Some other error, couldn't ioctl MY_RECV_MSG_RPROC!\n");
+	// 	close(fd);
+	// 	return 1;
+	// }
+
+	// printf("MY_RECV_MSG_RPROC: OK!\n");
 
 	printf("stm32ecu ioctl success!\n");
 

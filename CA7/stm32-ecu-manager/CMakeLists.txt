@@ -14,7 +14,7 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_BUILD_TYPE "Debug")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14 -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -std=gnu++14 -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit")
 
 add_compile_options(
     "-ffunction-sections"
@@ -23,7 +23,7 @@ add_compile_options(
     "-Wall"
     "-fstack-usage"
     "-g3"
-    "-Og"
+    "-O0"
     "-MMD"
     "-MP"
     "-Wl,--specs-nosys.specs"

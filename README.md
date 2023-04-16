@@ -97,6 +97,13 @@ If you want to connect over ethernet in future, use this serial connection to ge
  - You can close the serial connection and SSH in like usual. Probably a good idea to set a static IP address for it
  - E.g. `ssh root@192.168.0.4`
 
+The script provided to flash firmware onto the board requires `rsync` to be installed on both the host and target.
+ - Connect the board to ethernet
+ - Press the reset button on the board
+ - Connect via ssh or serial connection
+ - `apt-get update`
+ - `apt-get install rsync`
+ - Now you can run the script to transfer kernel modules, applications, etc.
 
 
 ## Setup and flash the STM32 Developer Pack

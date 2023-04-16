@@ -175,6 +175,25 @@ add_custom_target(kernel_install ALL
 )
 
 
+# Target to build and install only our custom kernel modules
+add_custom_target(kernel_install_ecu_modules
+    WORKING_DIRECTORY
+        ${KERNEL_SOURCE_DIR}
+    COMMAND
+        ${CMAKE_MAKE_PROGRAM} ARCH=arm all O="${KERNEL_BUILD_DIR}" -j${num_jobs}
+    COMMAND
+        ${CMAKE_MAKE_PROGRAM} ARCH=arm INSTALL_HDR_PATH="${KERNEL_INSTALL_DIR}" headers_install O="${KERNEL_BUILD_DIR}" -j${num_jobs}
+    COMMAND
+        ${CMAKE_MAKE_PROGRAM} ARCH=arm INSTALL_MOD_PATH="${KERNEL_INSTALL_DIR}" modules_install O="${KERNEL_BUILD_DIR}" -j${num_jobs}
+    COMMAND
+        # Ignore source and build dirs when using rsync to copy files
+        echo "${KERNEL_VERSION}/source ${KERNEL_VERSION}/build" >${KERNEL_INSTALL_DIR}/lib/modules/.cvsignore
+    COMMAND
+        # Ignore vmlinux
+        echo "vmlinux" >${KERNEL_INSTALL_DIR}/boot/.cvsignore
+)
+
+
 # Copy generated boot image and device tree
 file(GLOB dtb_files ${KERNEL_BUILD_DIR}/arch/arm/boot/dts/st*.dtb)
 install(

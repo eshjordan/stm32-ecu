@@ -13,7 +13,7 @@ Interproc_Msg_t RpmsgManager::interproc_msg = {};
 struct rpmsg_endpoint RpmsgManager::rp_stm32ecu_endpoint = {};
 
 int RpmsgManager::send_ack(struct rpmsg_endpoint *ept) {
-  Interproc_Msg_t reply = interproc_msg_make(ACK_CMD, NULL);
+  Interproc_Msg_t reply = interproc_msg_make(CMD_ACK, NULL, 0);
   return OPENAMP_send(ept, &reply, sizeof(reply));
 }
 
@@ -25,12 +25,12 @@ int RpmsgManager::stm32ecu_recv_cb(struct rpmsg_endpoint *ept, void *data,
     interproc_msg = *((Interproc_Msg_t *)data);
 
     switch (interproc_msg.command) {
-    case PING_CMD: {
+    case CMD_PING: {
       RpmsgManager::send_ack(ept);
       break;
     }
 
-    case PARAM_GET_CMD: {
+    case CMD_PARAM_GET: {
       auto param_type = *(System::Impl::ParameterType*)interproc_msg.data;
       char param_name[12] = {0};
       strncpy(param_name, (const char*)interproc_msg.data+1, 10);
@@ -38,7 +38,7 @@ int RpmsgManager::stm32ecu_recv_cb(struct rpmsg_endpoint *ept, void *data,
       {
         case System::Impl::ParameterType::PARAMETER_BOOL: {
           bool param_value = System::get_parameter_value<bool>(param_name);
-          Interproc_Msg_t reply = {.command = ACK_CMD};
+          Interproc_Msg_t reply = {.command = CMD_ACK};
           *(bool*)reply.data = param_value;
           interproc_msg_calc_checksum(&reply);
           OPENAMP_send(ept, &reply, sizeof(reply));
@@ -46,7 +46,7 @@ int RpmsgManager::stm32ecu_recv_cb(struct rpmsg_endpoint *ept, void *data,
         }
         case System::Impl::ParameterType::PARAMETER_INTEGER: {
           int64_t param_value = System::get_parameter_value<int64_t>(param_name);
-          Interproc_Msg_t reply = {.command = ACK_CMD};
+          Interproc_Msg_t reply = {.command = CMD_ACK};
           *(int64_t*)reply.data = param_value;
           interproc_msg_calc_checksum(&reply);
           OPENAMP_send(ept, &reply, sizeof(reply));
@@ -54,7 +54,7 @@ int RpmsgManager::stm32ecu_recv_cb(struct rpmsg_endpoint *ept, void *data,
         }
         case System::Impl::ParameterType::PARAMETER_DOUBLE: {
           double param_value = System::get_parameter_value<double>(param_name);
-          Interproc_Msg_t reply = {.command = ACK_CMD};
+          Interproc_Msg_t reply = {.command = CMD_ACK};
           *(double*)reply.data = param_value;
           interproc_msg_calc_checksum(&reply);
           OPENAMP_send(ept, &reply, sizeof(reply));
@@ -62,7 +62,7 @@ int RpmsgManager::stm32ecu_recv_cb(struct rpmsg_endpoint *ept, void *data,
         }
         case System::Impl::ParameterType::PARAMETER_STRING: {
           const char* param_value = System::get_parameter_value<System::Impl::ParameterType::PARAMETER_STRING>(param_name);
-          Interproc_Msg_t reply = {.command = ACK_CMD};
+          Interproc_Msg_t reply = {.command = CMD_ACK};
           strncpy((char*)reply.data, param_value, 11);
           interproc_msg_calc_checksum(&reply);
           OPENAMP_send(ept, &reply, sizeof(reply));
@@ -70,7 +70,7 @@ int RpmsgManager::stm32ecu_recv_cb(struct rpmsg_endpoint *ept, void *data,
         }
         case System::Impl::ParameterType::PARAMETER_BYTE_ARRAY: {
           const uint8_t *param_value = System::get_parameter_value<const uint8_t*>(param_name);
-          Interproc_Msg_t reply = {.command = ACK_CMD};
+          Interproc_Msg_t reply = {.command = CMD_ACK};
           memcpy(reply.data, param_value, 11);
           interproc_msg_calc_checksum(&reply);
           OPENAMP_send(ept, &reply, sizeof(reply));
@@ -78,38 +78,44 @@ int RpmsgManager::stm32ecu_recv_cb(struct rpmsg_endpoint *ept, void *data,
         }
         case System::Impl::ParameterType::PARAMETER_NOT_SET:
         default:
-        {}
+        {
+        	Interproc_Msg_t reply = {.command = Interproc_Command_t::CMD_UNKNOWN};
+        	strncpy((char*)reply.data, "E_PARAMT", 11);
+        	interproc_msg_calc_checksum(&reply);
+        	OPENAMP_send(ept, &reply, sizeof(reply));
+        	break;
+        }
       }
       break;
     }
 
-    case PARAM_SET_CMD: {
+    case CMD_PARAM_SET: {
       break;
     }
 
-    case FIRMWARE_UPDATE_CMD:
-    case PROGRAM_UPDATE_CMD:
-    case VALUE_CMD:
-    case UNKNOWN_CMD:
-    case ECHO_CMD: {
+    case CMD_FIRMWARE_UPDATE:
+    case CMD_PROGRAM_UPDATE:
+    case CMD_VALUE:
+    case CMD_UNKNOWN:
+    case CMD_ECHO: {
       break;
     }
 
-    case RESET_CMD: {
+    case CMD_RESET: {
       RpmsgManager::send_ack(ept);
       break;
     }
 
-    case STATUS_CMD:
-    case SYNC_CMD:
-    case ACK_CMD:
+    case CMD_STATUS:
+    case CMD_SYNC:
+    case CMD_ACK:
     default: {
       break;
     }
     }
 
-    sprintf(rply, "%s - %d", reply_str, interproc_msg.command);
-    OPENAMP_send(ept, rply, strlen(rply));
+//    sprintf(rply, "%s - %d", reply_str, interproc_msg.command);
+//    OPENAMP_send(ept, rply, strlen(rply));
 
     message_received = 1;
   }

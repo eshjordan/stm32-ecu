@@ -56,6 +56,6 @@ message InterprocMsg {
   }
 
   InterprocCommand command = 1;
-  uint64 data = 2;
+  bytes data = 2;
   uint32 checksum = 3;
 }

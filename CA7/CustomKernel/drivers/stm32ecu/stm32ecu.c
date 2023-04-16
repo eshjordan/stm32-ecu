@@ -108,14 +108,22 @@ static ssize_t ioctl_read(struct file *filp, char __user *buf, size_t len,
 	size_t expected_len = sizeof(Interproc_Msg_t) * num_msgs;
 	if (len != expected_len) {
 		printk(KERN_ERR
-		       "Data Write : Err, buffer length is not a multiple of sizeof(Interproc_Msg_t)!\n");
+		       "Data Read : Err, buffer length is not a multiple of sizeof(Interproc_Msg_t)!\n");
 		return 0;
 	}
 
+	auto num_stored_msgs = kfifo_size(&fifo_external_msg);
+	if (0 == num_stored_msgs) {
+		printk(KERN_ERR "Data Read : Err, no messages to read!\n");
+		return 0;
+	}
+
+	auto num_output_msgs = min(num_msgs, num_stored_msgs);
+
 	ssize_t bytes_read = 0;
-	Interproc_Msg_t *out_msg;
-	for (out_msg = (Interproc_Msg_t *)buf;
-	     out_msg < (Interproc_Msg_t *)buf + num_msgs; out_msg++) {
+	int i;
+	for (i = 0; i < num_output_msgs; i++) {
+		Interproc_Msg_t *out_msg = ((Interproc_Msg_t *)buf)+i;
 		kfifo_get(&fifo_external_msg, out_msg);
 		bytes_read += sizeof(Interproc_Msg_t);
 	}
@@ -146,25 +154,27 @@ static ssize_t ioctl_write(struct file *filp, const char __user *buf,
 		return 0;
 	}
 
-	Interproc_Msg_t *msg;
-	for (msg = msg_list; msg < msg_list + num_msgs; msg++) {
+	int i;
+	for (i = 0; i < num_msgs; i++) {
+		Interproc_Msg_t *msg = msg_list+i;
 		if (msg->checksum !=
 		    calc_crc(msg, offsetof(Interproc_Msg_t, checksum))) {
 			printk(KERN_ERR
 			       "Interproc_Msg_t at idx %d has invalid CRC!\n",
-			       msg - msg_list);
+			       i);
 			return 0;
 		}
 	}
 
 	ssize_t bytes_written = 0;
-	for (msg = msg_list; msg < msg_list + num_msgs; msg++) {
+	for (i = 0; i < num_msgs; i++) {
+		Interproc_Msg_t *msg = msg_list+i;
 		int ret = rpmsg_send(global_rproc_ref->ept, msg,
 				     sizeof(Interproc_Msg_t));
 		if (ret) {
 			dev_err(&global_rproc_ref->dev,
 				"rpmsg_send of msg at idx %d failed: %d\n",
-				msg - msg_list, ret);
+				i, ret);
 			return bytes_written;
 		}
 
@@ -207,7 +217,7 @@ static long ioctl_call(struct file *file, unsigned int cmd, unsigned long arg)
 			return -EINVAL;
 		}
 
-		Interproc_Msg_t msg = { .command = PING_CMD,
+		Interproc_Msg_t msg = { .command = CMD_PING,
 					.data = { 0 },
 					.checksum = 0 };
 
@@ -272,6 +282,7 @@ static long ioctl_call(struct file *file, unsigned int cmd, unsigned long arg)
 		u32 id;
 		if (copy_from_user(&id, (u32 *)arg, sizeof(u32))) {
 			printk(KERN_ERR "Data Write Msg : Err!\n");
+			return -EINVAL;
 		}
 
 		// xa_reserve
@@ -282,6 +293,7 @@ static long ioctl_call(struct file *file, unsigned int cmd, unsigned long arg)
 		// xa_erase
 
 		if (NULL == xa_load(&rx_unique_buffer, id)) {
+			printk(KERN_ERR "No message with uid %d in buffer yet!\n", id);
 			return -EAGAIN;
 		}
 
@@ -291,6 +303,7 @@ static long ioctl_call(struct file *file, unsigned int cmd, unsigned long arg)
 		if (copy_to_user((Interproc_Msg_t *)arg, msg,
 				 sizeof(Interproc_Msg_t))) {
 			printk(KERN_ERR "Data Write Msg : Err!\n");
+			return -EINVAL;
 		}
 
 		return 0;
@@ -347,16 +360,29 @@ static int rpmsg_sample_cb(struct rpmsg_device *rpdev, void *data, int len,
 			printk(KERN_WARNING "CRC OK\n");
 			printk(KERN_WARNING "msg->command = %u\n",
 			       msg->command);
+			int i;
+			for (i = 0; i < 11; i++) {
+				printk(KERN_WARNING "msg->data[%d] = %u\n", i,
+				       msg->data[i]);
+			}
+			printk(KERN_WARNING "msg->data (str) = [%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s]\n",
+			       msg->data[0], msg->data[1], msg->data[2],
+			       msg->data[3], msg->data[4], msg->data[5],
+			       msg->data[6], msg->data[7], msg->data[8],
+			       msg->data[9], msg->data[10]);
 
 			switch (sent_type) {
 			case SENT_MSG_EXTERNAL_FIFO: {
 				// Store the message in a buffer, ready to give to userspace
+				printk(KERN_WARNING "Storing in FIFO");
 				if (!kfifo_put(&fifo_external_msg, *msg)) {
 					return -EINVAL;
 				}
 				break;
 			}
 			case SENT_MSG_EXTERNAL_UNIQUE: {
+				// Store the message in an indexed list, ready to give to userspace
+				printk(KERN_WARNING "Storing in XArray");
 				u32 id;
 				kfifo_get(&fifo_unique_ids, &id);
 				Interproc_Msg_t *ptr =
@@ -371,6 +397,7 @@ static int rpmsg_sample_cb(struct rpmsg_device *rpdev, void *data, int len,
 			case SENT_MSG_INTERNAL:
 			default: {
 				// Sent as part of a ping request or something, don't do anything
+				printk(KERN_WARNING "Not storing, internal request\n");
 				break;
 			}
 			}

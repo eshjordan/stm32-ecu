@@ -30,11 +30,6 @@ done
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
 
-# Make sure rsync is installed
-ssh root@${BOARD_IP} "apt-get update -q"
-ssh root@${BOARD_IP} "apt-get install -yq rsync"
-
-
 if [ $FULL ];
 then
 

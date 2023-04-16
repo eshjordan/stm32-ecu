@@ -4,7 +4,7 @@
 #
 
 # ccflags-$(CONFIG_STM32ECU_DEBUG) := -DDEBUG
-ccflags-m := -DDEBUG
+ccflags-m := -g -O0 -DDEBUG
 
 # small core, mostly translating board-specific
 # config declarations into driver model code
